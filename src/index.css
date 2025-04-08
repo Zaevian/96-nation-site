@@ -1,0 +1,95 @@
+/* Import Futura PT font */
+@import url('https://fonts.cdnfonts.com/css/futura-pt');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #231F20;
+  --accent: #DC4405;
+  --text: #FFFFFF;
+}
+
+html, body {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--primary);
+}
+
+body {
+  @apply bg-primary text-white font-primary overflow-x-hidden;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 6px;
+}
+
+.hero-text {
+  @apply font-bold text-5xl md:text-7xl lg:text-8xl tracking-wider;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.section-title {
+  @apply text-3xl md:text-4xl lg:text-5xl font-bold mb-8 relative
+    pl-4 border-l-4 border-accent;
+}
+
+.page-container {
+  @apply container mx-auto px-4 py-24 max-w-7xl;
+}
+
+.card {
+  @apply bg-black bg-opacity-40 backdrop-blur-sm 
+    rounded-lg p-6 shadow-lg border border-gray-800
+    transition-all duration-300 hover:shadow-accent hover:shadow-md;
+}
+
+.btn {
+  @apply px-6 py-3 font-bold rounded-md transition duration-300
+    inline-flex items-center justify-center;
+}
+
+.btn-primary {
+  @apply bg-accent hover:bg-accent/80 text-white;
+}
+
+.btn-outline {
+  @apply border-2 border-accent text-white hover:bg-accent/20;
+}
+
+.navbar {
+  @apply bg-black bg-opacity-90 backdrop-blur-md;
+}
+
+.navbar-link {
+  @apply font-medium relative py-2;
+}
+
+.navbar-link::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-accent
+    transition-all duration-300;
+}
+
+.navbar-link:hover::after,
+.navbar-link.active::after {
+  @apply w-full;
+}
+
+.video-overlay {
+  background: linear-gradient(to bottom, 
+    rgba(35, 31, 32, 0.2) 0%, 
+    rgba(35, 31, 32, 0.6) 70%, 
+    rgba(35, 31, 32, 1) 100%
+  );
+}
