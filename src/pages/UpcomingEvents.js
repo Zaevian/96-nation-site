@@ -60,7 +60,7 @@ const UpcomingEvents = () => {
                 : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            Community Events
+            Community Events and Shows
           </button>
           <button
             onClick={() => setFilter('showcase')}
