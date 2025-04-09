@@ -96,11 +96,17 @@ const ShowContent = () => {
             transition={{ duration: 0.5, delay: index * 0.05 }}
           >
             <div className="relative aspect-video bg-gray-800 overflow-hidden">
-              <img 
-                src={`/api/placeholder/600/340`} 
-                alt={item.title} 
-                className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-              />
+              {item.type === 'photo' ? (
+                <div className="w-full h-full flex items-center justify-center bg-gray-800 text-white text-xl font-bold p-4 text-center">
+                  {item.title}
+                </div>
+              ) : (
+                <img 
+                  src={item.thumbnail} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                />
+              )}
               {item.type === 'video' && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-16 h-16 bg-accent/80 rounded-full flex items-center justify-center">
@@ -111,7 +117,7 @@ const ShowContent = () => {
             </div>
             <div className="p-4">
               <div className="flex justify-between items-start mb-2">
-                <span className="text-accent text-sm font-bold">{item.date}</span>
+                <span className="text-accent text-sm font-bold">{item.event}</span>
                 <span className={`text-xs font-bold uppercase py-1 px-2 rounded ${
                   item.type === 'photo' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'
                 }`}>
@@ -119,7 +125,6 @@ const ShowContent = () => {
                 </span>
               </div>
               <h3 className="text-xl font-bold">{item.title}</h3>
-              <p className="text-gray-400 text-sm">{item.event}</p>
             </div>
           </motion.div>
         ))}
@@ -150,29 +155,23 @@ const ShowContent = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {selectedItem.type === 'photo' ? (
-                <img 
-                  src={`/api/placeholder/1200/800`} 
-                  alt={selectedItem.title} 
-                  className="w-full h-auto max-h-[70vh] object-contain mx-auto rounded"
-                />
+                <div className="w-full h-[70vh] flex items-center justify-center bg-gray-800 text-accent text-3xl font-bold p-8 text-center rounded">
+                  Photos Coming Soon!
+                </div>
               ) : (
                 <div className="aspect-video bg-black rounded overflow-hidden">
-                  <img 
-                    src={`/api/placeholder/1200/675`} 
-                    alt={selectedItem.title} 
-                    className="w-full h-full object-cover"
+                  <video 
+                    src={selectedItem.videoUrl} 
+                    controls
+                    poster={selectedItem.thumbnail}
+                    className="w-full h-full object-contain"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-20 h-20 bg-accent/80 rounded-full flex items-center justify-center">
-                      <Play size={40} className="text-white ml-1" />
-                    </div>
-                  </div>
                 </div>
               )}
               
               <div className="bg-gray-900/80 backdrop-blur-sm p-4 rounded-b text-white mt-2">
                 <h3 className="text-2xl font-bold mb-1">{selectedItem.title}</h3>
-                <p className="text-gray-300">{selectedItem.event} • {selectedItem.date}</p>
+                <p className="text-gray-300">{selectedItem.event}</p>
                 <p className="text-gray-400 mt-2">{selectedItem.description}</p>
               </div>
             </motion.div>

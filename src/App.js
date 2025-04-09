@@ -5,7 +5,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import UpcomingEvents from './pages/UpcomingEvents';
 import ShowContent from './pages/ShowContent';
-import SennaSceneAssistant from './pages/SennaSceneAssistant';
+import SennaScene from './pages/SennaScene';
 import GenesisServices from './pages/GenesisServices';
 import ArtistSpotlight from './pages/ArtistSpotlight';
 
@@ -24,7 +24,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/upcoming-events" element={<UpcomingEvents />} />
           <Route path="/show-content" element={<ShowContent />} />
-          <Route path="/senna-scene-assistant" element={<SennaSceneAssistant />} />
+          <Route path="/senna-scene" element={<SennaScene />} />
           <Route path="/genesis-services" element={<GenesisServices />} />
           <Route path="/artist-spotlight" element={<ArtistSpotlight />} />
         </Routes>

@@ -16,7 +16,7 @@ const Footer = () => {
             </Link>
             <p className="text-gray-400 max-w-md">
               Live events and artist showcase company based in Tallahassee, Florida. 
-              Bringing the best underground music and art to the scene since 2020.
+              Bringing the best underground music and art to the scene since 2022.
             </p>
           </div>
 
@@ -84,7 +84,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-10 pt-6 border-t border-gray-800 text-center text-sm text-gray-500">
-          <p>© 2025 96 Nation FL. All rights reserved.</p>
+          <p>&copy; 2025 96 Nation FL. All rights reserved.</p>
         </div>
       </div>
     </footer>

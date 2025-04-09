@@ -118,7 +118,7 @@ export const artists = [
       bio: "Rapper/DJ",
       image: artisanP,
       links: {
-        instagram: "https://www.instagram.com/artisanpmusic"
+        instagram: "https://www.instagram.com/artisanp"
       },
       featured: true
     },
@@ -128,7 +128,7 @@ export const artists = [
       bio: "Rapping, Singing",
       image: babyyDre,
       links: {
-        instagram: "https://www.instagram.com/OfficialBabyyDre"
+        instagram: "https://www.instagram.com/babyydreoffical"
       },
       featured: true
     },
@@ -218,7 +218,7 @@ export const artists = [
       bio: "Originals Only",
       image: curlyQ,
       links: {
-        instagram: "https://www.instagram.com/curlyqfl"
+        instagram: "https://www.instagram.com/Curlyqtheband"
       },
       featured: true
     },
@@ -344,11 +344,11 @@ export const artists = [
     },
     {
       name: "JaggN",
-      genre: "Hip-Hop, Rap",
-      bio: "Energetic performances with a unique flow",
+      genre: "Alt Metal, Emo",
+      bio: "Energetic performances with a unique sound",
       image: jaggn,
       links: {
-        instagram: "https://www.instagram.com/jaggn_"
+        instagram: "https://www.instagram.com/jaggintheband"
       },
       featured: true
     },
@@ -368,7 +368,7 @@ export const artists = [
       bio: "Keys, guitars, vocals, drums, bass",
       image: looseThreads,
       links: {
-        instagram: "https://www.instagram.com/loosethreadstally"
+        instagram: "https://www.instagram.com/loosethreadzband"
       },
       featured: true
     },
@@ -888,7 +888,7 @@ export const artists = [
       bio: "Bass, guitar, drums, vocals, saxophone, didgeridoo, zurna, synthesizer",
       image: pondscum,
       links: {
-        instagram: "https://www.instagram.com/pondscumpondscumpondsc"
+        instagram: "https://www.instagram.com/pondscumpondscumpondscumpondsc"
       },
       featured: true
     },

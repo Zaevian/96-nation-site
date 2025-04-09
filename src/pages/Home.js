@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
 import { events } from '../Data/events';
 import { artists } from '../Data/artists';
+import { Trophy } from 'lucide-react';
 
 const Home = () => {
   // Animation variants
@@ -138,7 +139,7 @@ const Home = () => {
               FEATURED <span className="text-accent">ARTISTS</span>
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              Discover the talent we're proud to work with.
+              Discover the talent competing in Last Band Standing III and previous winners.
             </p>
           </motion.div>
 
@@ -149,30 +150,40 @@ const Home = () => {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            {artists.slice(0, 4).map((artist, index) => (
-              <motion.div 
-                key={index} 
-                className="card text-center group"
-                variants={itemVariants}
-              >
-                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 border-2 border-accent">
-                  <img 
-                    src={artist.image || `/api/placeholder/200/200`} 
-                    alt={artist.name} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-xl font-bold">{artist.name}</h3>
-                <p className="text-accent text-sm mb-2">{artist.genre}</p>
-                <p className="text-sm text-gray-400 line-clamp-3 mb-4">{artist.bio}</p>
-                <Link 
-                  to="/artist-spotlight" 
-                  className="text-accent hover:underline text-sm font-bold"
+            {/* Filter artists from Last Band Standing III event */}
+            {artists
+              .filter(artist => 
+                ["Mutual Friends", "Durty Suns", "JaggN", "Palace Rats"].includes(artist.name)
+              )
+              .map((artist, index) => (
+                <motion.div 
+                  key={index} 
+                  className="card text-center group"
+                  variants={itemVariants}
                 >
-                  View Profile
-                </Link>
-              </motion.div>
-            ))}
+                  <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-4 border-2 border-accent">
+                    <img 
+                      src={artist.image || `/api/placeholder/200/200`} 
+                      alt={artist.name} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold">
+                    {artist.name}
+                    {["Mutual Friends", "Durty Suns"].includes(artist.name) && (
+                      <Trophy size={16} className="inline-block ml-2 text-accent winner-trophy" />
+                    )}
+                  </h3>
+                  <p className="text-accent text-sm mb-2">{artist.genre}</p>
+                  <p className="text-sm text-gray-400 line-clamp-3 mb-4">{artist.bio}</p>
+                  <Link 
+                    to="/artist-spotlight" 
+                    className="text-accent hover:underline text-sm font-bold"
+                  >
+                    View Profile
+                  </Link>
+                </motion.div>
+              ))}
           </motion.div>
 
           <div className="text-center mt-12">
@@ -207,6 +218,19 @@ const Home = () => {
           </motion.div>
         </div>
       </section>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes trophyFlicker {
+          0% { opacity: 1; }
+          25% { opacity: 0.7; }
+          50% { opacity: 1; }
+          75% { opacity: 0.7; }
+          100% { opacity: 1; }
+        }
+        
+        .winner-trophy {
+          animation: trophyFlicker 2s infinite;
+        }
+      `}} />
     </div>
   );
 };

@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-// Import a placeholder video (in actual implementation, this would be your event footage)
-const placeholderVideo = 'https://assets.mixkit.co/videos/preview/mixkit-concerts-with-amazing-light-effects-1216-large.mp4';
+// Import the actual hero video
+import heroVideo from '../Assets/hero-page-video/hero-page-video.mp4';
 
 const Hero = () => {
   const containerRef = useRef(null);
@@ -37,7 +37,7 @@ const Hero = () => {
       >
         <ReactPlayer
           ref={videoRef}
-          url={placeholderVideo}
+          url={heroVideo}
           playing
           loop
           muted
