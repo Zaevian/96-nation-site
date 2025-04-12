@@ -84,17 +84,7 @@ export const tbaArtists = [
   },
   {
     name: "Wondermare",
-    genre: "tba",
-    bio: "Artist info coming soon!",
-    image: "/images/tba-artist-placeholder.png",
-    links: {
-      instagram: ""
-    },
-    isTBA: true
-  },
-  {
-    name: "Lucid Lunnar",
-    genre: "tba",
+    genre: "Indie / Alternative",
     bio: "Artist info coming soon!",
     image: "/images/tba-artist-placeholder.png",
     links: {
@@ -355,16 +345,6 @@ export const tbaArtists = [
   {
     name: "The Other White Meat",
     genre: "Hardcore Punk",
-    bio: "Artist info coming soon!",
-    image: "/images/tba-artist-placeholder.png",
-    links: {
-      instagram: ""
-    },
-    isTBA: true
-  },
-  {
-    name: "wondermaere",
-    genre: "Indie / Alternative",
     bio: "Artist info coming soon!",
     image: "/images/tba-artist-placeholder.png",
     links: {

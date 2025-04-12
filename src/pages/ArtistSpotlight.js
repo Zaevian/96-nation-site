@@ -162,11 +162,11 @@ const ArtistSpotlight = () => {
               
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
-                  <h3 className="text-2xl font-bold">
+                  <h3 className="text-xl font-bold flex items-center">
                     {artist.name}
-                    {!artist.isTBA && hasPerformed(artist.name) && (
-                      <span className="inline-block ml-2 animate-pulse">
-                        <Star size={16} className="inline text-yellow-400 fill-yellow-400" />
+                    {hasPerformed(artist.name) && (
+                      <span title="Has performed at previous shows" className="ml-1 flex items-center">
+                        <Star size={16} className="text-yellow-400 fill-yellow-400" />
                       </span>
                     )}
                   </h3>

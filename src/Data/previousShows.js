@@ -1,5 +1,70 @@
+import moshmaniaremasted from '../Assets/previous-show-images/moshmaniaremasted.jpg';
+import loveiseletric from '../Assets/previous-show-images/loveiseletric.jpg';
+import wickednight from '../Assets/previous-show-images/wickednight.jpg';
+import nightofnoise from '../Assets/previous-show-images/nightofnoise.jpg';
+import kickbackninetysix from '../Assets/previous-show-images/kickbackninetysix.jpg';
+import redrum from '../Assets/previous-show-images/redrum.jpg';
+import masquerave from '../Assets/previous-show-images/masquerave.jpg';
+import moshmaniarampage from '../Assets/previous-show-images/moshmaniarampage.jpg';
+import mindstatefloridawekender from '../Assets/previous-show-images/mindstatefloridawekender.jpg';
+import semesterkickoffjerseyparty from '../Assets/previous-show-images/woodstock96.jpg';
+import punknotdead from '../Assets/previous-show-images/punksnotdead.jpg';
+import lastbandstanding2 from '../Assets/previous-show-images/lastbandstanding2.jpg';
+import woodstock96 from '../Assets/previous-show-images/woodstock96.jpg';
+import marchmeltdown from '../Assets/previous-show-images/marchmeltdown.jpg';
+import beachesnbands2 from '../Assets/previous-show-images/beachesnbands2.jpg';
+import quantumrave from '../Assets/previous-show-images/quantumrave.jpg';
+import freedomofspeechcypher from '../Assets/previous-show-images/freddomofspeechcypher.jpg';
+import loveiswar from '../Assets/previous-show-images/loveiswar.jpg';
+import backto96 from '../Assets/previous-show-images/backto96.jpg';
+import rosebud from '../Assets/previous-show-images/rosebud.jpg';
+import punkthehalls from '../Assets/previous-show-images/punkthehalls.jpg';
+import gameday96 from '../Assets/previous-show-images/gameday96floridastatevsmiami.jpg';
+import atyourhouse from '../Assets/previous-show-images/atyourhouse96.jpg';
+import sinister96 from '../Assets/previous-show-images/sinister96.jpg';
+import moshmania from '../Assets/previous-show-images/moshmania.jpg';
+import welcometo96 from '../Assets/previous-show-images/welcometo96.jpg';
+import lovesexcandy from '../Assets/previous-show-images/lovesexcandy.jpg';
+import beachesnbands from '../Assets/previous-show-images/beachesnbands.jpg';
+import lastbandstanding from '../Assets/previous-show-images/lastbandstanding.jpg';
+import bandsnotbombs from '../Assets/community-show-images/bandsnotbombs.jpg';
+import queerrave from '../Assets/community-show-images/queerrave.jpg';
+
 // Previous shows data for 96 Nation
 export const previousShows = [
+  {
+    title: "BANDS NOT BOMBS",
+    date: "April 18, 2025",
+    time: "8:00 PM",
+    venue: "1602 Mayhew St.",
+    location: "Tallahassee, FL",
+    price: "5",
+    type: "community",
+    image: bandsnotbombs,
+    artists: ["Palace Rats", "sleepybug", "no parts"],
+    details: {
+      notes: [
+        "All Proceeds: Donated to Tallahassee's Food Not Bombs",
+        "DO NOT park at the house across the street – you will get towed!"
+      ]
+    }
+  },
+  {
+    title: "QUEER RAVE",
+    date: "April 19, 2025",
+    time: "10:30 PM – 1:00 AM",
+    venue: "The Bark",
+    location: "507 All Saints St, Tallahassee, FL",
+    price: "10",
+    type: "community",
+    image: queerrave,
+    artists: ["Dalédi", "DJ Asexual", "Gabbalish", "Ryan Lunar"],
+    details: {
+      notes: [
+        "Presented by: Tally SDS (Students for a Democratic Society)"
+      ]
+    }
+  },
   {
     title: "MoshMania: Remastered",
     date: "March 29, 2025",
@@ -8,7 +73,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: moshmaniaremasted,
     artists: ["Failed State", "Stoneheads", "WormWorld", "Gangs of Paris"],
     details: {
       notes: ["Hosted by 96 Nation x FSU (The Pit)"]
@@ -22,7 +87,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: loveiseletric,
     artists: ["Taint", "Palace Rats", "JAGGN", "Mutual Friends"],
     details: {
       notes: []
@@ -36,7 +101,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "5",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: wickednight,
     artists: ["Lucid Lunar", "Gods Computer", "Facey", "ALMOST", "DJ Chevy (Sounds)"],
     details: {
       notes: ["Theme: Wear Pink or Green!"]
@@ -50,7 +115,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: nightofnoise,
     artists: ["Castover", "Pit Violets", "Danitza", "Death Weapon", "Meister Academy", "Durty Suns", "Wondermare"],
     details: {
       notes: ["Proceeds go toward recovery efforts in the Bay Area following destruction caused by Hurricane Milton and Hurricane Heleen", "Hosted by 96 Nation x Pit Violets x Castover"]
@@ -64,7 +129,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: kickbackninetysix,
     artists: ["DJ Chevy", "Lucid Lunnar", "Facey", "Dallas Aleea", "Phabrik"],
     details: {
       notes: []
@@ -78,7 +143,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: redrum,
     artists: ["Falls Chase", "Solomon Hill", "The Yeah Babys", "Mutual Friends"],
     details: {
       notes: ["Halloween Night"]
@@ -92,7 +157,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: masquerave,
     artists: ["Deejay Tim Greene", "Gabbalish", "DJ Marcos", "Ewitani"],
     details: {
       notes: ["Dress Code: Wear a mask", "Hosted by 96 Nation x The Amplifire"]
@@ -106,7 +171,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: moshmaniarampage,
     artists: ["Uno Avion", "Mulch", "Palace Rats", "Gila", "Satin"],
     details: {
       notes: []
@@ -120,7 +185,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: mindstatefloridawekender,
     artists: ["Not Milk", "Cloud Storage", "Sunshower"],
     details: {
       notes: []
@@ -134,10 +199,10 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: semesterkickoffjerseyparty,
     artists: ["Danitza", "Durty Suns", "Counterfeit Stereo", "No Parts"],
     details: {
-      notes: ["Theme: Jersey Party — pull up in your favorite team fit, rep your city, college, or just wear that thrifted jersey with no team on it"]
+      notes: ["Theme: Wear Pink or Green!"]
     }
   },
   {
@@ -148,7 +213,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: punknotdead,
     artists: ["Psycho Tropical", "Danitza", "Castover", "Lex & Fly Agaric"],
     details: {
       notes: ["Theme/Dress Code: Dress punk/goth/emo", "All proceeds go to rebuilding the Tally music scene", "Hosted by FSU Crushes x The Vault x 96 Nation"]
@@ -162,7 +227,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "15",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: lastbandstanding2,
     artists: ["Penny Fountain", "Almost", "Durty Suns", "Callisto's Collapse"],
     details: {
       notes: ["Prizes: $1000 Cash Prize, Free Music Video, Drum Lessons, Free Photoshoot", "Hosted by 96 Nation x The Puff x Legacy at the Riverfront"]
@@ -176,7 +241,7 @@ export const previousShows = [
     location: "2256 W Pensacola, Tallahassee, FL",
     price: "Free",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: woodstock96,
     artists: ["Mutual Friends", "KARE", "The Real You", "Solomon Hill"],
     details: {
       notes: ["4/20 Show", "FREE Show"]
@@ -190,7 +255,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: marchmeltdown,
     artists: ["Walking Blue", "No Parts", "girlwithapple.wav"],
     details: {
       notes: []
@@ -204,7 +269,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: beachesnbands2,
     artists: ["The Yeahhh Babyyys", "Almost", "Oak's Experiment", "The Flirt"],
     details: {
       notes: ["Beach-themed spring event"]
@@ -218,7 +283,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: quantumrave,
     artists: ["Zacy", "Ahri", "NFRACT", "IMDJ2K"],
     details: {
       notes: ["Genres: Trance • Techno • Jungle • House"]
@@ -232,7 +297,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "5",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: freedomofspeechcypher,
     artists: ["Chapø", "Pierre Black", "Freezee", "Kai", "Chef with da Left", "FGT", "AG RITCH", "Jhoan", "Trik Ave", "Jay D$nero", "Dallas Aleea", "Slit", "Naomi Murray", "Zjala Phelps", "Facey"],
     details: {
       notes: ["15 Local Sets, 3 Live Cyphers"]
@@ -246,7 +311,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: loveiswar,
     artists: ["Oak's Experiment", "Solomon Hill", "Counterfeit Stereo", "Internet Girlfriend"],
     details: {
       notes: []
@@ -260,7 +325,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: backto96,
     artists: ["Psycho Tropical", "Sleep John B", "Solomon Hill", "Curly Q"],
     details: {
       notes: []
@@ -274,7 +339,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: rosebud,
     artists: ["Beloved Devotion", "Curly Q", "No Parts"],
     details: {
       notes: []
@@ -288,7 +353,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "15",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: punkthehalls,
     artists: ["Danitza", "Mutual Friends", "The Flirt", "Bruvvy"],
     details: {
       notes: []
@@ -302,7 +367,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "5",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: gameday96,
     artists: ["Satin", "Rubber Hearts", "Big Child", "Curly Q"],
     details: {
       notes: []
@@ -316,7 +381,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "5",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: atyourhouse,
     artists: ["Animal Nineteen", "Professional Businessman", "Unwanted Company"],
     details: {
       notes: []
@@ -330,7 +395,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: sinister96,
     artists: ["Religious Education", "Beloved Devotion", "Moonbleach", "Copyright Claim"],
     details: {
       notes: ["Halloween-themed show"]
@@ -344,7 +409,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "15",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: moshmania,
     artists: ["Our Final Feud", "This Dying Breed", "Falls Chase", "Gangs of Paris"],
     details: {
       notes: []
@@ -358,7 +423,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: welcometo96,
     artists: ["Jungle Juice", "On The Edge", "Professional Businessman", "Mutual Friends"],
     details: {
       notes: ["Season kickoff show"]
@@ -372,7 +437,7 @@ export const previousShows = [
     location: "9330 W Tennessee St, Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: lovesexcandy,
     artists: ["Copyright Claim", "Kanise", "Chef Will & Tonight's Special", "Soul Candy"],
     details: {
       notes: ["$10 (21+), $12 (under 21)"]
@@ -386,7 +451,7 @@ export const previousShows = [
     location: "1645 Airport Drive, Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: beachesnbands,
     artists: ["Internet Girlfriend", "Red Letter Day", "Learning to Swim", "Killer Choice"],
     details: {
       notes: ["Dress Code: Come dressed in your best beach attire!"]
@@ -400,7 +465,7 @@ export const previousShows = [
     location: "Tallahassee, FL",
     price: "10",
     type: "showcase",
-    image: "/images/placeholder-show.jpg",
+    image: lastbandstanding,
     artists: ["Beloved Devotion", "Mutual Friends", "Rockodilians", "Flying Bison"],
     details: {
       notes: [
