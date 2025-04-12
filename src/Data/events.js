@@ -1,4 +1,7 @@
 // Sample events data for 96 Nation
+import bandsnotbombs from '../Assets/community-show-images/bandsnotbombs.jpg';
+import queerrave from '../Assets/community-show-images/queerrave.jpg';
+
 export const events = [
   {
     title: "LAST BAND STANDING III",
@@ -12,6 +15,32 @@ export const events = [
     artists: ["Mutual Friends", "Durty Suns", "JaggN", "Palace Rats"],
     description: "96 Nation x TMIC presents LAST BAND STANDING III! Come out to see bands battle it out for a free photoshoot, free music video, and cash prize. $5 presale, $10 at the door.",
     tickets: "https://96nation.com/tickets/last-band-standing"
+  },
+  {
+    title: "BANDS NOT BOMBS",
+    date: "April 18, 2025",
+    time: "8:00 PM",
+    venue: "1602 Mayhew St.",
+    location: "Tallahassee, FL",
+    price: "5",
+    type: "community",
+    image: bandsnotbombs,
+    artists: ["Palace Rats", "sleepybug", "no parts"],
+    description: "All Proceeds: Donated to Tallahassee's Food Not Bombs. DO NOT park at the house across the street – you will get towed!",
+    tickets: ""
+  },
+  {
+    title: "QUEER RAVE",
+    date: "April 19, 2025",
+    time: "10:30 PM – 1:00 AM",
+    venue: "The Bark",
+    location: "507 All Saints St, Tallahassee, FL",
+    price: "10",
+    type: "community",
+    image: queerrave,
+    artists: ["Dalédi", "DJ Asexual", "Gabbalish", "Ryan Lunar"],
+    description: "Presented by: Tally SDS (Students for a Democratic Society)",
+    tickets: ""
   },
   {
     title: "Music Video Extra Call!",
@@ -52,5 +81,4 @@ export const events = [
     description: "Join us for MEMORY WELL featuring Dear Cincinnati, Listener 555, Cloud Storage, and Solomon Hill. Age Restriction: 18+",
     tickets: "https://96nation.com/tickets/memory-well"
   },
-  
 ];

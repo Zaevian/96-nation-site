@@ -27,44 +27,9 @@ import welcometo96 from '../Assets/previous-show-images/welcometo96.jpg';
 import lovesexcandy from '../Assets/previous-show-images/lovesexcandy.jpg';
 import beachesnbands from '../Assets/previous-show-images/beachesnbands.jpg';
 import lastbandstanding from '../Assets/previous-show-images/lastbandstanding.jpg';
-import bandsnotbombs from '../Assets/community-show-images/bandsnotbombs.jpg';
-import queerrave from '../Assets/community-show-images/queerrave.jpg';
 
 // Previous shows data for 96 Nation
 export const previousShows = [
-  {
-    title: "BANDS NOT BOMBS",
-    date: "April 18, 2025",
-    time: "8:00 PM",
-    venue: "1602 Mayhew St.",
-    location: "Tallahassee, FL",
-    price: "5",
-    type: "community",
-    image: bandsnotbombs,
-    artists: ["Palace Rats", "sleepybug", "no parts"],
-    details: {
-      notes: [
-        "All Proceeds: Donated to Tallahassee's Food Not Bombs",
-        "DO NOT park at the house across the street – you will get towed!"
-      ]
-    }
-  },
-  {
-    title: "QUEER RAVE",
-    date: "April 19, 2025",
-    time: "10:30 PM – 1:00 AM",
-    venue: "The Bark",
-    location: "507 All Saints St, Tallahassee, FL",
-    price: "10",
-    type: "community",
-    image: queerrave,
-    artists: ["Dalédi", "DJ Asexual", "Gabbalish", "Ryan Lunar"],
-    details: {
-      notes: [
-        "Presented by: Tally SDS (Students for a Democratic Society)"
-      ]
-    }
-  },
   {
     title: "MoshMania: Remastered",
     date: "March 29, 2025",
