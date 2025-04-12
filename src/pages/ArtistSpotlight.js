@@ -103,16 +103,6 @@ const ArtistSpotlight = () => {
             >
               All Artists
             </button>
-            <button
-              onClick={() => setFilter('tba')}
-              className={`px-3 py-2 rounded-full text-sm font-medium transition duration-300 flex items-center ${
-                filter === 'tba' 
-                  ? 'bg-accent text-white' 
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              TBA Artists
-            </button>
             {genres.map(genre => (
               <button
                 key={genre}
@@ -123,10 +113,19 @@ const ArtistSpotlight = () => {
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
-                <Filter size={14} className="mr-1" />
                 {genre.charAt(0).toUpperCase() + genre.slice(1)}
               </button>
             ))}
+            <button
+              onClick={() => setFilter('tba')}
+              className={`px-3 py-2 rounded-full text-sm font-medium transition duration-300 flex items-center ${
+                filter === 'tba' 
+                  ? 'bg-accent text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              TBA Artists
+            </button>
           </div>
         </div>
       </div>

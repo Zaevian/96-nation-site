@@ -197,10 +197,10 @@ export const previousShows = [
     }
   },
   {
-    title: "Beaches 'N Bands 3",
+    title: "Beaches 'N Bands 2",
     date: "March 23, 2024",
     time: "Doors: 8:00 PM",
-    venue: "FSU Wesley Foundation",
+    venue: "The 96 Clubhouse",
     location: "Tallahassee, FL",
     price: "7",
     type: "showcase",
@@ -407,62 +407,6 @@ export const previousShows = [
         "$10 Pre-sale, $15 at the Door",
         "Winner Rewards: $500 Cash Prize, Studio Time at Goldie Sound, Free Photoshoot, Gift from The Puff"
       ]
-    }
-  },
-  {
-    title: "Helluva Night",
-    date: "April 15, 2023",
-    time: "Starts at 8:00 PM",
-    venue: "The 96 Clubhouse",
-    location: "Tallahassee, FL",
-    price: "7",
-    type: "showcase",
-    image: "/images/placeholder-show.jpg",
-    artists: ["Senna Scene"],
-    details: {
-      notes: ["Get ready for a helluva night with killer tracks."]
-    }
-  },
-  {
-    title: "Smooth Rhythms",
-    date: "March 10, 2023",
-    time: "Starts at 8:00 PM",
-    venue: "The 96 Clubhouse",
-    location: "Tallahassee, FL",
-    price: "7",
-    type: "showcase",
-    image: "/images/placeholder-show.jpg",
-    artists: ["Senna Scene"],
-    details: {
-      notes: ["Smooth rhythms to soothe your soul."]
-    }
-  },
-  {
-    title: "Badass Beats",
-    date: "February 5, 2023",
-    time: "Starts at 8:00 PM",
-    venue: "The 96 Clubhouse",
-    location: "Tallahassee, FL",
-    price: "7",
-    type: "showcase",
-    image: "/images/placeholder-show.jpg",
-    artists: ["Senna Scene"],
-    details: {
-      notes: ["Badass beats that will get you moving."]
-    }
-  },
-  {
-    title: "New Year Bash",
-    date: "January 1, 2023",
-    time: "Starts at 8:00 PM",
-    venue: "The 96 Clubhouse",
-    location: "Tallahassee, FL",
-    price: "7",
-    type: "showcase",
-    image: "/images/placeholder-show.jpg",
-    artists: ["Senna Scene"],
-    details: {
-      notes: ["Kick off the year with an epic party."]
     }
   }
 ];
