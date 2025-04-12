@@ -60,7 +60,7 @@ const Footer = () => {
               Connect With Us
             </h3>
             <div className="flex space-x-4 mb-6">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-accent transition" aria-label="Instagram">
+              <a href="https://instagram.com/babyydreofficial" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-accent transition" aria-label="Instagram">
                 <Instagram size={24} />
               </a>
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-accent transition" aria-label="Facebook">

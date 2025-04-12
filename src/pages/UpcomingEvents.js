@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock, DollarSign, Music, Info } from 'lucide-react';
 import { events } from '../Data/events';
+import { previousShows } from '../Data/previousShows';
 
 const UpcomingEvents = () => {
   const [filter, setFilter] = useState('all');
   
-  // Filter events by type
+  // Filter events by type, including previous shows when showcase is selected
   const filteredEvents = filter === 'all' 
     ? events 
-    : events.filter(event => event.type === filter);
+    : filter === 'showcase'
+      ? previousShows
+      : events.filter(event => event.type === filter);
+
+  // Check if we're showing previous shows
+  const isShowingPreviousShows = filter === 'showcase';
 
   return (
     <div className="page-container pt-32">
@@ -21,11 +27,12 @@ const UpcomingEvents = () => {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-5xl md:text-6xl font-bold mb-4">
-          UPCOMING <span className="text-accent">EVENTS</span>
+          {isShowingPreviousShows ? 'PREVIOUS ' : 'UPCOMING '}<span className="text-accent">EVENTS</span>
         </h1>
         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-          Check out our calendar of upcoming shows, community events, and artist showcases.
-          Get your tickets early to secure your spot.
+          {isShowingPreviousShows 
+            ? 'Check out our archive of past shows and events.'
+            : 'Check out our calendar of upcoming shows, community events, and artist showcases. Get your tickets early to secure your spot.'}
         </p>
       </motion.div>
 
@@ -70,7 +77,7 @@ const UpcomingEvents = () => {
                 : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            Showcases
+            Previous Shows
           </button>
         </div>
       </div>
@@ -131,32 +138,43 @@ const UpcomingEvents = () => {
                     </div>
                     <div className="flex items-center text-gray-300">
                       <Music size={18} className="mr-2 text-accent" />
-                      <span>{event.artists.join(', ')}</span>
+                      <span>
+                        {event.artists.map((artist, idx) => (
+                          <React.Fragment key={artist}>
+                            {artist}
+                            {idx < event.artists.length - 1 ? ', ' : ''}
+                          </React.Fragment>
+                        ))}
+                      </span>
                     </div>
                   </div>
                   
-                  <p className="text-gray-400 mb-6">{event.description}</p>
+                  {event.details && event.details.notes && event.details.notes.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-sm font-semibold text-gray-400 mb-2">NOTES:</h3>
+                      <ul className="list-disc list-inside text-gray-400 space-y-1">
+                        {event.details.notes.map((note, idx) => (
+                          <li key={idx}>{note}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 
-                <div className="flex flex-wrap gap-3">
-                  <a 
-                    href={event.title === "LAST BAND STANDING III" 
-                      ? "https://checkout.square.site/merchant/MLCKH40SQB6SJ/checkout/E5RNHGBVZETDNJVA35HIRCGG"
-                      : event.tickets || "#"}
-                    className="btn btn-primary"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Get Tickets
-                  </a>
-                  <a 
-                    href="#" 
-                    className="btn btn-outline"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    Event Details
-                  </a>
-                </div>
+                {(!isShowingPreviousShows && (filter === 'show' || event.title === "LAST BAND STANDING III")) && (
+                  <div className="flex flex-wrap gap-3">
+                    <a 
+                      href={event.title === "LAST BAND STANDING III" 
+                        ? "https://checkout.square.site/merchant/MLCKH40SQB6SJ/checkout/E5RNHGBVZETDNJVA35HIRCGG"
+                        : event.tickets || "#"}
+                      className="btn btn-primary"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Get Tickets
+                    </a>
+                  </div>
+                )}
               </div>
             </motion.div>
           ))

@@ -167,6 +167,10 @@ export const services = [
         {
           name: "Michael Dove",
           specialty: "Branding/strategy"
+        },
+        {
+          name: "Elka Anistratenko",
+          specialty: "Creative Direction, Social Media Graphics, Illustration, Brand Identity"
         }
       ],
       styleNotes: [

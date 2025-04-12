@@ -51,7 +51,7 @@ const Home = () => {
               we bring people together through the power of music and art.
             </p>
             <div className="flex justify-center gap-4 flex-wrap">
-              <Link to="/genesis-services" className="btn btn-primary">Our Services</Link>
+              <Link to="/artist-spotlight" className="btn btn-primary">Artist Spotlight</Link>
               <Link to="/upcoming-events" className="btn btn-outline">Upcoming Events</Link>
             </div>
           </motion.div>
@@ -194,7 +194,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Services Teaser */}
+      {/* Team Application Section */}
       <section className="py-20 bg-gradient-to-b from-black to-primary relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <motion.div 
@@ -205,16 +205,19 @@ const Home = () => {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              GENESIS <span className="text-accent">SERVICES</span>
+              JOIN <span className="text-accent">OUR TEAM</span>
             </h2>
             <p className="text-xl text-gray-300 mb-8">
-              Need help with your event or artistic journey? Our professional services 
-              can elevate your brand, create unforgettable experiences, and connect you 
-              with the right audience.
+              Interested in joining our team? We're looking for passionate individuals who want to help grow the local music scene in Tallahassee.
             </p>
-            <Link to="/genesis-services" className="btn btn-primary">
-              Explore Our Services
-            </Link>
+            <a 
+              href="https://docs.google.com/forms/d/1rWqMNHghJJsWHA0Hf8Q5zXmqgvymAB0H_mR0zlQcPDs/viewform?edit_requested=true&fbclid=PAY2xjawJk679leHRuA2FlbQIxMAABp8lQ_sO_sEnPS94aPZCaif3t1zhBo62SjFzdWY4Y0P2tMvVN9TsfZavyobU__aem_xCebm4ccLCi9mxmKk4qmbw" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn btn-primary"
+            >
+              Apply Now
+            </a>
           </motion.div>
         </div>
       </section>

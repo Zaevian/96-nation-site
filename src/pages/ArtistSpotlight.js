@@ -1,19 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink, Music, Play, Filter } from 'lucide-react';
+import { ExternalLink, Music, Play, Filter, Star, Send } from 'lucide-react';
 import { artists } from '../Data/artists';
+import { tbaArtists } from '../Data/tbaArtists';
+import { previousShows } from '../Data/previousShows';
+import '../Assets/tba-artist-placeholder.css';
 
 const ArtistSpotlight = () => {
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-
+  
+  // Combine regular artists and TBA artists
+  const allArtists = [...artists, ...tbaArtists];
+  
+  // Create a list of all artists who have performed in previous shows
+  const performedArtists = previousShows.reduce((acc, show) => {
+    show.artists.forEach(artist => {
+      acc.add(artist.toLowerCase());
+    });
+    return acc;
+  }, new Set());
+  
+  // Function to check if an artist has performed in a previous show
+  const hasPerformed = (artistName) => {
+    return performedArtists.has(artistName.toLowerCase());
+  };
+  
   // Filter artists by genre and search term
-  const filteredArtists = artists
+  const filteredArtists = allArtists
     .filter(artist => {
-      const matchesGenre = filter === 'all' || artist.genre.toLowerCase().includes(filter.toLowerCase());
+      // For TBA filter, only show TBA artists
+      if (filter === 'tba') {
+        return artist.isTBA && (
+          searchTerm === '' || 
+          artist.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+      
+      // For regular genre filters, exclude TBA artists
+      const matchesGenre = filter === 'all' 
+        ? !artist.isTBA 
+        : !artist.isTBA && artist.genre.toLowerCase().includes(filter.toLowerCase());
+        
       const matchesSearch = searchTerm === '' || 
         artist.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         artist.bio.toLowerCase().includes(searchTerm.toLowerCase());
+        
       return matchesGenre && matchesSearch;
     })
     .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically by name
@@ -36,6 +68,11 @@ const ArtistSpotlight = () => {
         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
           Discover the talented artists in our community. From emerging local acts to 
           established performers, these are the voices shaping our sound.
+          <br />
+          <span className="text-sm mt-2 inline-block">
+            <Star size={14} className="inline text-yellow-400 fill-yellow-400 mr-1 animate-pulse" />
+            Stars indicate artists who have performed at our previous shows.
+          </span>
         </p>
       </motion.div>
 
@@ -64,20 +101,29 @@ const ArtistSpotlight = () => {
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
-              <Filter size={14} className="mr-1" />
-              All Genres
+              All Artists
             </button>
-            
-            {genres.map((genre) => (
+            <button
+              onClick={() => setFilter('tba')}
+              className={`px-3 py-2 rounded-full text-sm font-medium transition duration-300 flex items-center ${
+                filter === 'tba' 
+                  ? 'bg-accent text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              TBA Artists
+            </button>
+            {genres.map(genre => (
               <button
                 key={genre}
                 onClick={() => setFilter(genre)}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition duration-300 ${
+                className={`px-3 py-2 rounded-full text-sm font-medium transition duration-300 flex items-center ${
                   filter === genre 
                     ? 'bg-accent text-white' 
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
+                <Filter size={14} className="mr-1" />
                 {genre.charAt(0).toUpperCase() + genre.slice(1)}
               </button>
             ))}
@@ -87,31 +133,44 @@ const ArtistSpotlight = () => {
 
       {/* Artists Grid */}
       {filteredArtists.length > 0 ? (
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           {filteredArtists.map((artist, index) => (
             <motion.div
-              key={index}
-              className="card overflow-hidden"
+              key={artist.name}
+              className="card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.05 }}
             >
               <div className="aspect-square bg-gray-800 rounded-lg mb-6 overflow-hidden">
-                <img 
-                  src={artist.image || `/api/placeholder/400/400`} 
-                  alt={artist.name} 
-                  className="w-full h-full object-cover hover:scale-105 transition duration-500"
-                />
+                {artist.isTBA ? (
+                  <div className="tba-artist-placeholder">
+                    <div className="tba-artist-text">Artist info coming soon!</div>
+                  </div>
+                ) : (
+                  <img 
+                    src={artist.image || `/api/placeholder/400/400`} 
+                    alt={artist.name} 
+                    className="w-full h-full object-cover hover:scale-105 transition duration-500"
+                  />
+                )}
               </div>
               
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
-                  <h3 className="text-2xl font-bold">{artist.name}</h3>
+                  <h3 className="text-2xl font-bold">
+                    {artist.name}
+                    {!artist.isTBA && hasPerformed(artist.name) && (
+                      <span className="inline-block ml-2 animate-pulse">
+                        <Star size={16} className="inline text-yellow-400 fill-yellow-400" />
+                      </span>
+                    )}
+                  </h3>
                   <span className="bg-gray-800 text-xs font-bold uppercase py-1 px-2 rounded">
                     {artist.genre}
                   </span>
@@ -160,6 +219,7 @@ const ArtistSpotlight = () => {
                   )}
                 </div>
                 
+                {/* Temporarily removed "View Full Profile" button
                 <a 
                   href="#" 
                   className="block mt-4 text-center btn btn-outline w-full"
@@ -167,6 +227,7 @@ const ArtistSpotlight = () => {
                 >
                   View Full Profile
                 </a>
+                */}
               </div>
             </motion.div>
           ))}
@@ -179,6 +240,30 @@ const ArtistSpotlight = () => {
           </p>
         </div>
       )}
+      
+      {/* Artist Submission Form Section */}
+      <motion.div 
+        className="mt-24 mb-12 text-center max-w-3xl mx-auto py-10 px-6 border border-gray-800 rounded-xl bg-gray-900/50"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        <h2 className="text-3xl font-bold mb-4">Are you an artist? <span className="text-accent">Let us know!</span></h2>
+        <p className="text-gray-300 mb-8">
+          We're always looking to spotlight new talent in the Tallahassee music scene. 
+          If you're an artist who would like to be featured on our site, 
+          please fill out our artist submission form.
+        </p>
+        <a 
+          href="https://forms.gle/HEZcecGsW9zhunhx9" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="btn btn-primary inline-flex items-center"
+        >
+          <Send size={18} className="mr-2" />
+          Submit Artist Form
+        </a>
+      </motion.div>
     </div>
   );
 };

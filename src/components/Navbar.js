@@ -27,7 +27,6 @@ const Navbar = () => {
     { name: 'Upcoming Events', path: '/upcoming-events' },
     { name: 'Show Content', path: '/show-content' },
     { name: 'Scene Senna', path: '/senna-scene' },
-    { name: 'Genesis Services', path: '/genesis-services' },
     { name: 'Artist Spotlight', path: '/artist-spotlight' },
   ];
 

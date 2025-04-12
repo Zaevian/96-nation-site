@@ -58,11 +58,11 @@ const GenesisServices = () => {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-5xl md:text-6xl font-bold mb-4">
-          GENESIS <span className="text-accent">SERVICES</span>
+          ARTIST <span className="text-accent">SPOTLIGHT</span>
         </h1>
         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-          Professional services for artists, venues, and event organizers.
-          Let us help you create unforgettable experiences.
+          Discover the talented artists in our community. From emerging local acts to 
+          established performers, these are the voices shaping our sound.
         </p>
       </motion.div>
 

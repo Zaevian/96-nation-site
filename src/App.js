@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -25,7 +25,7 @@ function App() {
           <Route path="/upcoming-events" element={<UpcomingEvents />} />
           <Route path="/show-content" element={<ShowContent />} />
           <Route path="/senna-scene" element={<SennaScene />} />
-          <Route path="/genesis-services" element={<GenesisServices />} />
+          <Route path="/genesis-services" element={<Navigate to="/artist-spotlight" replace />} />
           <Route path="/artist-spotlight" element={<ArtistSpotlight />} />
         </Routes>
       </main>
