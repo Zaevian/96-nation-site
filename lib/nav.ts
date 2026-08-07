@@ -14,6 +14,7 @@ export const primaryNav: NavItem[] = [
 ];
 
 export const footerNav: NavItem[] = [
+  { href: "/about", label: "About" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
   { href: "/contact", label: "Contact" },

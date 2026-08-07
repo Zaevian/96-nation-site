@@ -1,17 +1,32 @@
 import type { Metadata } from "next";
-import { Container } from "@/components/ui/Container";
 
-export const metadata: Metadata = {
-  title: "Terms",
-};
+import { CmsPageView } from "@/components/CmsPageView";
+import { getPageBySlug, getSiteSettings } from "@/lib/sanity/queries";
+import { buildPageMetadata } from "@/lib/seo";
 
-export default function TermsPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const [page, settings] = await Promise.all([
+    getPageBySlug("terms"),
+    getSiteSettings(),
+  ]);
+  return buildPageMetadata({
+    title: page?.title || "Terms",
+    description:
+      page?.seo?.metaDescription ||
+      "Terms of use for 96 Nation ticketing and community services.",
+    path: "/terms",
+    seo: page?.seo,
+    settings,
+  });
+}
+
+export default async function TermsPage() {
+  const page = await getPageBySlug("terms");
   return (
-    <Container className="py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-fg">Terms</h1>
-      <p className="mt-4 max-w-prose text-muted">
-        Terms of use placeholder. Full terms will ship with the handoff package.
-      </p>
-    </Container>
+    <CmsPageView
+      page={page}
+      fallbackTitle="Terms"
+      fallbackDescription="Terms of use placeholder. Full terms will ship with the handoff package, or can be authored as a Page with slug “terms” in Sanity Studio."
+    />
   );
 }

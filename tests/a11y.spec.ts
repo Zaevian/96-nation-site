@@ -14,10 +14,9 @@ function formatViolations(
 }
 
 test.describe("accessibility smoke", () => {
-  test("home page has no serious axe violations", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-
+  async function expectNoSeriousAxeViolations(
+    page: import("@playwright/test").Page,
+  ) {
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
       .analyze();
@@ -37,6 +36,18 @@ test.describe("accessibility smoke", () => {
         formatViolations(results.violations),
       ].join("\n"),
     ).toEqual([]);
+  }
+
+  test("home page has no serious axe violations", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectNoSeriousAxeViolations(page);
+  });
+
+  test("privacy stub has no serious axe violations", async ({ page }) => {
+    await page.goto("/privacy");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectNoSeriousAxeViolations(page);
   });
 
   test("skip link targets main content", async ({ page }) => {

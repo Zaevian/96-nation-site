@@ -9,3 +9,15 @@ export {
 } from "./env";
 export { getClient, getServerClient, sanityFetch } from "./client";
 export { urlForImage } from "./image";
+export {
+  getFeaturedEvents,
+  getPageBySlug,
+  getSiteSettings,
+} from "./queries";
+export type {
+  CmsPage,
+  FeaturedEvent,
+  SanityImage,
+  SeoFields,
+  SiteSettings,
+} from "./types";

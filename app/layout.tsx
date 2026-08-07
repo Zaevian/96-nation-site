@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteShell } from "@/components/SiteShell";
+import { getSiteSettings } from "@/lib/sanity/queries";
+import { buildRootMetadata } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,14 +15,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "96 Nation",
-    template: "%s · 96 Nation",
-  },
-  description:
-    "96 Nation ticketing hub — events, Genesis, and local talent.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return buildRootMetadata(settings);
+}
 
 export default function RootLayout({
   children,

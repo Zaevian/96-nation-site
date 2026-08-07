@@ -59,17 +59,19 @@ Without a project id, `/studio` shows setup instructions and the production buil
 ## Project layout
 
 ```text
-app/                 # Next.js App Router (home + route stubs)
-  layout.tsx         # Root layout + SiteShell
-  globals.css        # Tailwind v4 + AA placeholder tokens
+app/                 # Next.js App Router (marketing + stubs + studio)
+  layout.tsx         # Root layout + SiteShell + default SEO
+  page.tsx           # Home (siteSettings hero, featured events, about)
+  about|privacy|terms|genesis  # CMS pages with stub fallbacks
   studio/[[...tool]] # Embedded Sanity Studio
-components/          # Header, Footer, SkipLink, SiteShell, ui/*
+components/          # Header, Footer, PortableText, CmsPageView, ui/*
 lib/nav.ts           # Primary + footer nav config
-lib/sanity/          # client, env, image helpers
+lib/seo.ts           # generateMetadata / OG helpers
+lib/sanity/          # client, env, image, queries, types
 sanity/              # schemaTypes, desk structure
 sanity.config.ts
 docs/SANITY.md       # seed + publish checklist
-tests/a11y.spec.ts   # Playwright axe smoke
+tests/a11y.spec.ts   # Playwright axe smoke (/, /privacy)
 public/
 postcss.config.mjs   # @tailwindcss/postcss
 .env.example
@@ -85,7 +87,7 @@ Placeholder AA-safe tokens live in `app/globals.css` (bg `#0a0a0a`, fg `#f5f5f5`
 - Mobile hamburger nav; visible `:focus-visible`; `prefers-reduced-motion`
 - CI: lint + build + axe smoke (`.github/workflows/ci.yml`)
 
-Marketing routes, checkout, and `/admin` land in later PRs per the design rollout.
+Marketing home and static pages read Sanity when configured (graceful stubs without credentials). Events detail, galleries, checkout, and `/admin` land in later PRs per the design rollout.
 
 ## License / ownership
 

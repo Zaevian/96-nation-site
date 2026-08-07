@@ -13,6 +13,8 @@
     "test:a11y": "playwright test tests/a11y.spec.ts"
   },
   "dependencies": {
+    "@portabletext/react": "^7.0.1",
+    "@portabletext/types": "^4.0.2",
     "@sanity/icons": "^3.8.0",
     "@sanity/image-url": "^2.1.1",
     "@sanity/ui": "^3.5.1",

@@ -1,30 +1,233 @@
-import { Container } from "@/components/ui/Container";
-import { ButtonLink } from "@/components/ui/Button";
+import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
 
-export default function HomePage() {
+import { PortableText } from "@/components/PortableText";
+import { ButtonLink } from "@/components/ui/Button";
+import { Container } from "@/components/ui/Container";
+import {
+  getFeaturedEvents,
+  getSiteSettings,
+} from "@/lib/sanity/queries";
+import { urlForImage } from "@/lib/sanity/image";
+import { buildPageMetadata } from "@/lib/seo";
+import type { FeaturedEvent } from "@/lib/sanity/types";
+
+const FALLBACK_HERO = {
+  title: "96 Nation — tickets, talent, and Genesis",
+  subtitle:
+    "Mobile-first ticketing hub for local music. Browse events, grab tickets, explore galleries and videos, or connect through Genesis.",
+  ctaLabel: "View events",
+  ctaHref: "/events",
+  kicker: "Tallahassee · All-ages shows",
+};
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return buildPageMetadata({
+    title: settings?.homeHeroTitle || settings?.siteTitle || "96 Nation",
+    description:
+      settings?.homeHeroSubtitle ||
+      settings?.tagline ||
+      FALLBACK_HERO.subtitle,
+    path: "/",
+    settings,
+    absoluteTitle: true,
+  });
+}
+
+function formatEventDate(iso?: string | null): string | null {
+  if (!iso) return null;
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: "America/New_York",
+    }).format(new Date(iso));
+  } catch {
+    return null;
+  }
+}
+
+function FeaturedEvents({ events }: { events: FeaturedEvent[] }) {
+  if (events.length === 0) {
+    return (
+      <section aria-labelledby="featured-heading" className="mt-16">
+        <h2
+          id="featured-heading"
+          className="text-xl font-bold tracking-tight text-fg"
+        >
+          Upcoming events
+        </h2>
+        <p className="mt-3 max-w-prose text-muted">
+          No published events yet. Check back soon, or browse the{" "}
+          <Link
+            href="/events"
+            className="text-accent underline underline-offset-2"
+          >
+            events page
+          </Link>
+          .
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section aria-labelledby="featured-heading" className="mt-16">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h2
+          id="featured-heading"
+          className="text-xl font-bold tracking-tight text-fg"
+        >
+          Upcoming events
+        </h2>
+        <Link
+          href="/events"
+          className="text-sm font-medium text-accent underline-offset-2 hover:underline"
+        >
+          View all
+        </Link>
+      </div>
+      <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+        {events.map((event) => {
+          const dateLabel = formatEventDate(event.startAt);
+          const imageUrl = event.heroImage
+            ? urlForImage(event.heroImage)?.width(640).height(360).url()
+            : null;
+          return (
+            <li key={event._id}>
+              <Link
+                href={`/events/${event.slug}`}
+                className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface no-underline transition-colors hover:border-muted"
+              >
+                {imageUrl ? (
+                  <div className="relative aspect-[16/9] w-full bg-bg">
+                    <Image
+                      src={imageUrl}
+                      alt={event.heroImage?.alt || event.title}
+                      fill
+                      className="object-cover transition-opacity group-hover:opacity-90"
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                    />
+                  </div>
+                ) : null}
+                <div className="flex flex-1 flex-col gap-2 p-4">
+                  {dateLabel ? (
+                    <p className="text-xs font-medium uppercase tracking-wider text-accent">
+                      {dateLabel}
+                    </p>
+                  ) : null}
+                  <h3 className="text-lg font-semibold text-fg group-hover:text-accent">
+                    {event.title}
+                  </h3>
+                  {event.summary ? (
+                    <p className="line-clamp-2 text-sm text-muted">
+                      {event.summary}
+                    </p>
+                  ) : null}
+                </div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+export default async function HomePage() {
+  const [settings, featured] = await Promise.all([
+    getSiteSettings(),
+    getFeaturedEvents(),
+  ]);
+
+  const title =
+    settings?.homeHeroTitle?.trim() || FALLBACK_HERO.title;
+  const subtitle =
+    settings?.homeHeroSubtitle?.trim() || FALLBACK_HERO.subtitle;
+  const ctaLabel =
+    settings?.homeHeroCtaLabel?.trim() || FALLBACK_HERO.ctaLabel;
+  const ctaHref =
+    settings?.homeHeroCtaHref?.trim() || FALLBACK_HERO.ctaHref;
+  const kicker = settings?.tagline?.trim() || FALLBACK_HERO.kicker;
+  const heroImageUrl = settings?.homeHeroImage
+    ? urlForImage(settings.homeHeroImage)?.width(1400).height(800).url()
+    : null;
+  const aboutTitle =
+    settings?.aboutTitle?.trim() || "About 96 Nation";
+  const hasAboutBody = Boolean(
+    settings?.aboutBody && settings.aboutBody.length > 0,
+  );
+
   return (
     <Container className="py-12 sm:py-16">
-      <div className="max-w-2xl space-y-6">
-        <p className="text-sm font-medium uppercase tracking-wider text-accent">
-          Tallahassee · All-ages shows
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight text-fg sm:text-4xl">
-          96 Nation — tickets, talent, and Genesis
-        </h1>
-        <p className="text-base text-muted sm:text-lg">
-          Mobile-first ticketing hub for local music. Browse events, grab
-          tickets, explore galleries and videos, or connect through Genesis.
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <ButtonLink href="/events">View events</ButtonLink>
-          <ButtonLink href="/genesis" variant="secondary">
-            Genesis
-          </ButtonLink>
-          <ButtonLink href="/contact" variant="ghost">
-            Contact
-          </ButtonLink>
+      <div className="grid items-center gap-10 lg:grid-cols-2">
+        <div className="max-w-2xl space-y-6">
+          <p className="text-sm font-medium uppercase tracking-wider text-accent">
+            {kicker}
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-fg sm:text-4xl">
+            {title}
+          </h1>
+          <p className="text-base text-muted sm:text-lg">{subtitle}</p>
+          <div className="flex flex-wrap gap-3">
+            <ButtonLink href={ctaHref}>{ctaLabel}</ButtonLink>
+            <ButtonLink href="/genesis" variant="secondary">
+              Genesis
+            </ButtonLink>
+            <ButtonLink href="/contact" variant="ghost">
+              Contact
+            </ButtonLink>
+          </div>
         </div>
+
+        {heroImageUrl ? (
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-surface">
+            <Image
+              src={heroImageUrl}
+              alt={settings?.homeHeroImage?.alt || title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
+          </div>
+        ) : null}
       </div>
+
+      <FeaturedEvents events={featured} />
+
+      <section aria-labelledby="about-heading" className="mt-16 max-w-3xl">
+        <h2
+          id="about-heading"
+          className="text-xl font-bold tracking-tight text-fg"
+        >
+          {aboutTitle}
+        </h2>
+        {hasAboutBody ? (
+          <div className="mt-4">
+            <PortableText value={settings!.aboutBody} />
+          </div>
+        ) : (
+          <p className="mt-4 max-w-prose text-muted">
+            96 Nation brings all-ages shows and local talent together in the
+            Tallahassee area. Full about copy is managed in Site Settings when
+            Sanity is connected.
+          </p>
+        )}
+        <p className="mt-4">
+          <Link
+            href="/about"
+            className="text-sm font-medium text-accent underline-offset-2 hover:underline"
+          >
+            More about us
+          </Link>
+        </p>
+      </section>
     </Container>
   );
 }
