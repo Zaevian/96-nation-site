@@ -19,12 +19,13 @@ cp .env.example .env.local   # fill values as integrations land
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). You should see the **96 Nation** hello page with Tailwind utility styles applied.
+Open [http://localhost:3000](http://localhost:3000). You should see the **96 Nation** home page with global nav, skip link, and Tailwind utility styles applied.
 
 ```bash
 npm run build   # production build
 npm run start   # serve production build
 npm run lint
+npm run test:a11y   # axe + skip-link + 320px smoke on /
 ```
 
 ## Phase 0 checklist (ops — not a code PR)
@@ -42,17 +43,28 @@ Custom domain DNS is **not** a merge blocker for early PRs.
 ## Project layout
 
 ```text
-app/                 # Next.js App Router
-  layout.tsx
-  page.tsx           # Hello / brand placeholder
-  globals.css        # @import "tailwindcss"
+app/                 # Next.js App Router (home + route stubs)
+  layout.tsx         # Root layout + SiteShell
+  globals.css        # Tailwind v4 + AA placeholder tokens
+components/          # Header, Footer, SkipLink, SiteShell, ui/*
+lib/nav.ts           # Primary + footer nav config
+tests/a11y.spec.ts   # Playwright axe smoke
 public/
 postcss.config.mjs   # @tailwindcss/postcss
 .env.example
 DESIGN.md
 ```
 
-Product routes (events, checkout, admin, studio) land in later PRs per the design rollout.
+### Design tokens & a11y (PR 2)
+
+Placeholder AA-safe tokens live in `app/globals.css` (bg `#0a0a0a`, fg `#f5f5f5`, accent `#5eead4`). Re-run the a11y checklist when the brand kit lands.
+
+- Skip link → `#main-content`
+- Landmarks: header / main / footer
+- Mobile hamburger nav; visible `:focus-visible`; `prefers-reduced-motion`
+- CI: lint + build + axe smoke (`.github/workflows/ci.yml`)
+
+Product routes (checkout, admin, studio, CMS content) land in later PRs per the design rollout.
 
 ## License / ownership
 

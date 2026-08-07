@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteShell } from "@/components/SiteShell";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "96 Nation",
-  description: "96 Nation ticketing hub — events, Genesis, and local talent.",
+  title: {
+    default: "96 Nation",
+    template: "%s · 96 Nation",
+  },
+  description:
+    "96 Nation ticketing hub — events, Genesis, and local talent.",
 };
 
 export default function RootLayout({
@@ -27,7 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   );
