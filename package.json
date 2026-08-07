@@ -19,6 +19,7 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/ui": "^3.5.1",
     "@sanity/vision": "^4.22.0",
+    "@sentry/node": "^10.69.0",
     "@supabase/supabase-js": "^2.109.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",

@@ -9,6 +9,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/checkout/success",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, private",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

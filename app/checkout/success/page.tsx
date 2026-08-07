@@ -3,10 +3,13 @@ import Link from "next/link";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { resolveSuccessView } from "@/lib/checkout/success";
 import { getSiteSettings } from "@/lib/sanity/queries";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -30,49 +33,98 @@ type SuccessPageProps = {
 };
 
 /**
- * Minimal success stub for PR 9a.
- * Full Stripe session verification + order display lands in PR 9b.
+ * Success page authz:
+ * - Paid: stripe.checkout.sessions.retrieve(session_id) then load order
+ * - Free: order_id + confirm token hash
+ * Display: order id, event title, quantity, status, masked email — never phone.
+ * Cache-Control: no-store (also set in next.config headers).
  */
 export default async function CheckoutSuccessPage({
   searchParams,
 }: SuccessPageProps) {
   const { session_id, order_id, token } = await searchParams;
-  const hasPaidHint = Boolean(session_id);
-  const hasFreeHint = Boolean(order_id);
+  const view = await resolveSuccessView({
+    sessionId: session_id,
+    orderId: order_id,
+    token,
+  });
 
   return (
     <Container className="py-12">
       <div className="mx-auto max-w-lg">
-        <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
-          {hasFreeHint && !hasPaidHint ? "RSVP received" : "Thank you"}
-        </h1>
-
-        {hasPaidHint ? (
-          <p className="mt-4 text-muted">
-            Payment is processing. Check your email for your ticket confirmation
-            shortly. If you closed the payment window early, open the link from
-            your email when it arrives.
-          </p>
-        ) : hasFreeHint ? (
-          <p className="mt-4 text-muted">
-            Your RSVP is confirmed
-            {token ? "" : " if you completed the form"}. Check your email for a
-            confirmation link
-            {order_id ? (
-              <>
-                {" "}
-                (order <span className="font-mono text-sm text-fg">{order_id}</span>
-                )
-              </>
+        {view.kind === "confirmed" ? (
+          <>
+            <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
+              {view.processing
+                ? "Payment received"
+                : view.status === "paid" || view.status === "fulfilled"
+                  ? "You're confirmed"
+                  : "Order details"}
+            </h1>
+            {view.processing ? (
+              <p className="mt-4 text-muted">
+                Your payment went through. Finalizing your tickets — this page
+                may update shortly. A confirmation email is on its way.
+              </p>
+            ) : (
+              <p className="mt-4 text-muted">
+                Thanks for supporting 96 Nation. Keep this confirmation for your
+                records; a copy was sent by email when available.
+              </p>
+            )}
+            <dl className="mt-6 space-y-3 rounded-lg border border-border bg-surface p-4 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted">Order</dt>
+                <dd className="font-mono text-fg">{view.orderId}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted">Event</dt>
+                <dd className="text-right font-medium text-fg">
+                  {view.eventTitle}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted">Quantity</dt>
+                <dd className="text-fg">{view.quantity}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted">Status</dt>
+                <dd className="capitalize text-fg">
+                  {view.processing ? "processing" : view.status}
+                </dd>
+              </div>
+              {view.maskedEmail ? (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted">Email</dt>
+                  <dd className="text-fg">{view.maskedEmail}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </>
+        ) : view.kind === "processing" ? (
+          <>
+            <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
+              Payment processing
+            </h1>
+            <p className="mt-4 text-muted">{view.message}</p>
+            {view.orderId ? (
+              <p className="mt-2 font-mono text-sm text-fg">{view.orderId}</p>
             ) : null}
-            .
-          </p>
+          </>
+        ) : view.kind === "unauthorized" ? (
+          <>
+            <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
+              Confirmation unavailable
+            </h1>
+            <p className="mt-4 text-muted">{view.message}</p>
+          </>
         ) : (
-          <p className="mt-4 text-muted">
-            If you just completed checkout or an RSVP, check your email for
-            confirmation. This page does not show order details without a valid
-            session or token (full verification arrives in a follow-up release).
-          </p>
+          <>
+            <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
+              Thank you
+            </h1>
+            <p className="mt-4 text-muted">{view.message}</p>
+          </>
         )}
 
         <div className="mt-8 flex flex-wrap gap-3">

@@ -71,11 +71,20 @@ UPSTASH_REDIS_REST_TOKEN=
 
 CRON_SECRET=
 INVENTORY_SYNC_SECRET=
+SENTRY_DSN=
 FACILITY_FEE_CENTS=100
 DEFAULT_PHONE_REGION=US
 NEXT_PUBLIC_TICKETING_ENABLED=true
 NEXT_PUBLIC_MAINTENANCE_MODE=false
 ```
+
+## Cron auth
+
+Vercel Cron invokes `GET /api/cron/*` with `Authorization: Bearer ${CRON_SECRET}` when `CRON_SECRET` is set in the project env. Schedules live in `vercel.json` (`release-reservations` every 5m, `reconcile-orders` every 15m).
+
+## Stripe webhook
+
+Point Stripe to `POST /api/stripe/webhook` and set `STRIPE_WEBHOOK_SECRET` to the endpoint signing secret (`whsec_…`). Local: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 
 ## Migrations
 
