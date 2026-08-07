@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { mapRpcError } from "@/lib/inventory";
+import {
+  authorizeBearer,
+  timingSafeEqualString,
+} from "@/lib/security/secrets";
 import { createServiceClientOrNull } from "@/lib/supabase/server";
 import { sanityFetch } from "@/lib/sanity/client";
 
@@ -38,10 +42,14 @@ function authorize(request: Request): boolean {
     console.error("[inventory/sync] INVENTORY_SYNC_SECRET not configured");
     return false;
   }
-  const auth = request.headers.get("authorization");
-  if (auth === `Bearer ${secret}`) return true;
+  if (authorizeBearer(request.headers.get("authorization"), secret)) {
+    return true;
+  }
+  // Optional header (timing-safe); prefer Bearer
   const header = request.headers.get("x-inventory-sync-secret");
-  if (header === secret) return true;
+  if (header && timingSafeEqualString(header, secret)) {
+    return true;
+  }
   return false;
 }
 

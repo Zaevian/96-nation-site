@@ -16,6 +16,7 @@ set search_path = pg_catalog, public
 as $$
 declare
   v_order orders;
+  v_inv ticket_inventory;
 begin
   select * into v_order
   from orders
@@ -26,12 +27,26 @@ begin
     raise exception 'order % not found', p_order_id using errcode = 'P0002';
   end if;
 
-  -- Already fulfilled / terminal — idempotent no-op (return current row).
+  -- Already paid / fulfilled — idempotent no-op
+  -- (20260807130000 extends this for expired resurrect)
+  if v_order.status in ('paid', 'fulfilled') then
+    return v_order;
+  end if;
+
   if v_order.status is distinct from 'pending' then
     return v_order;
   end if;
 
-  perform commit_inventory(v_order.event_id, v_order.ticket_type_id, v_order.quantity);
+  -- Assert commit affected a row (O-6)
+  select * into v_inv
+  from commit_inventory(v_order.event_id, v_order.ticket_type_id, v_order.quantity);
+
+  if not found or v_inv.event_id is null then
+    raise exception
+      'commit_inventory returned 0 rows for order % (event %.% qty %)',
+      p_order_id, v_order.event_id, v_order.ticket_type_id, v_order.quantity
+      using errcode = 'P0001';
+  end if;
 
   update orders
   set
@@ -60,7 +75,7 @@ end;
 $$;
 
 comment on function fulfill_pending_order is
-  'Webhook fulfill: pending→paid + commit_inventory. No-op if not pending.';
+  'Webhook fulfill: pending→paid + commit_inventory (row asserted). No-op if not pending.';
 
 -- ---------------------------------------------------------------------------
 -- Expire pending reservation: release inventory, status=expired
@@ -132,6 +147,7 @@ set search_path = pg_catalog, public
 as $$
 declare
   v_order orders;
+  v_inv ticket_inventory;
 begin
   select * into v_order
   from orders
@@ -152,10 +168,15 @@ begin
       using errcode = '22023';
   end if;
 
-  -- Only decrement sold when capacity was committed (paid/fulfilled).
-  -- partially_refunded may still hold sold; full refund restores once.
-  if v_order.status in ('paid', 'fulfilled', 'partially_refunded') then
-    perform refund_inventory(v_order.event_id, v_order.ticket_type_id, v_order.quantity);
+  -- Assert refund_inventory affected a row (O-6)
+  select * into v_inv
+  from refund_inventory(v_order.event_id, v_order.ticket_type_id, v_order.quantity);
+
+  if not found or v_inv.event_id is null then
+    raise exception
+      'refund_inventory returned 0 rows for order % (event %.% qty %)',
+      p_order_id, v_order.event_id, v_order.ticket_type_id, v_order.quantity
+      using errcode = 'P0001';
   end if;
 
   update orders
@@ -179,7 +200,7 @@ end;
 $$;
 
 comment on function refund_paid_order is
-  'Full refund webhook: sold_count -= qty once, status=refunded. Idempotent.';
+  'Full refund webhook: sold_count -= qty once (row asserted), status=refunded. Idempotent.';
 
 -- ---------------------------------------------------------------------------
 -- Partial refund: paid|fulfilled → partially_refunded; NO sold_count change

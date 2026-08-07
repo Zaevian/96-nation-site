@@ -111,6 +111,13 @@ export default async function CheckoutSuccessPage({
               <p className="mt-2 font-mono text-sm text-fg">{view.orderId}</p>
             ) : null}
           </>
+        ) : view.kind === "rate_limited" ? (
+          <>
+            <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
+              Please wait
+            </h1>
+            <p className="mt-4 text-muted">{view.message}</p>
+          </>
         ) : view.kind === "unauthorized" ? (
           <>
             <h1 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">

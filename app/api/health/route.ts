@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * GET /api/health — uptime probe. No secrets required.
+ * Opaque errors only (no raw DB messages to clients).
  */
 export async function GET() {
   const supabase = createServiceClientOrNull();
@@ -18,28 +19,19 @@ export async function GET() {
   }
 
   try {
-    // Lightweight existence check — service role can read ticket_inventory
     const { error } = await supabase
       .from("ticket_inventory")
       .select("event_id")
       .limit(1);
 
     if (error) {
-      return NextResponse.json(
-        { ok: false, db: "error", message: error.message },
-        { status: 503 },
-      );
+      console.error("[health] db error:", error.message);
+      return NextResponse.json({ ok: false, db: "error" }, { status: 503 });
     }
 
     return NextResponse.json({ ok: true, db: "ok" });
   } catch (err) {
-    return NextResponse.json(
-      {
-        ok: false,
-        db: "error",
-        message: err instanceof Error ? err.message : String(err),
-      },
-      { status: 503 },
-    );
+    console.error("[health] exception:", err);
+    return NextResponse.json({ ok: false, db: "error" }, { status: 503 });
   }
 }

@@ -8,6 +8,10 @@ import {
   findOrderByCheckoutSession,
   findOrderById,
 } from "@/lib/orders/fulfill";
+import {
+  getClientIpFromHeaders,
+  rateLimitSuccess,
+} from "@/lib/rate-limit";
 import { getStripe } from "@/lib/stripe";
 import { createServiceClientOrNull } from "@/lib/supabase/server";
 
@@ -32,6 +36,10 @@ export type SuccessView =
     }
   | {
       kind: "empty";
+      message: string;
+    }
+  | {
+      kind: "rate_limited";
       message: string;
     };
 
@@ -84,8 +92,9 @@ function toConfirmed(
 
 /**
  * Resolve success page data with authz:
- * - Paid: must retrieve Stripe session; load order via metadata.orderId
+ * - Paid: must retrieve Stripe session AND payment_status === 'paid'; then load order
  * - Free: order_id + confirm token hash match
+ * Rate-limited per IP when Upstash configured (O-4).
  */
 export async function resolveSuccessView(params: {
   sessionId?: string;
@@ -101,6 +110,17 @@ export async function resolveSuccessView(params: {
       kind: "empty",
       message:
         "If you just completed checkout or an RSVP, check your email for confirmation. This page does not show order details without a valid session or token.",
+    };
+  }
+
+  // O-4: rate-limit success lookups (generic message; no valid/invalid distinction)
+  const ip = await getClientIpFromHeaders();
+  const rl = await rateLimitSuccess(ip);
+  if (!rl.success) {
+    return {
+      kind: "rate_limited",
+      message:
+        "Too many confirmation lookups. Please try again in a few minutes or check your email.",
     };
   }
 
@@ -142,6 +162,15 @@ export async function resolveSuccessView(params: {
       };
     }
 
+    // O-2: require paid before any order PII
+    if (session.payment_status !== "paid") {
+      return {
+        kind: "unauthorized",
+        message:
+          "Payment is not complete for this session. If you were charged, check your email or contact support.",
+      };
+    }
+
     const metaOrderId = session.metadata?.orderId;
     let order: OrderRow | null = null;
 
@@ -153,18 +182,12 @@ export async function resolveSuccessView(params: {
     }
 
     if (!order) {
-      if (session.payment_status === "paid") {
-        return {
-          kind: "processing",
-          orderId: metaOrderId ?? null,
-          message:
-            "Payment received. Your order is still processing — refresh in a moment or check your email.",
-        };
-      }
+      // Paid at Stripe but order row not found yet — processing, no full PII
       return {
-        kind: "unauthorized",
+        kind: "processing",
+        orderId: null,
         message:
-          "We could not find an order for this session. Check your email for confirmation.",
+          "Payment received. Your order is still processing — refresh in a moment or check your email.",
       };
     }
 
@@ -181,7 +204,7 @@ export async function resolveSuccessView(params: {
 
     const eventTitle = await resolveEventTitle(order.event_slug);
     const processing =
-      order.status === "pending" && session.payment_status === "paid";
+      order.status === "pending" || order.status === "expired";
 
     return toConfirmed(order, eventTitle, processing);
   }
@@ -201,8 +224,7 @@ export async function resolveSuccessView(params: {
     if (!safeEqualHash(tokenHash, order.confirm_token_hash)) {
       return {
         kind: "unauthorized",
-        message:
-          "Invalid confirmation token. Use the link from your email.",
+        message: "Invalid confirmation token. Use the link from your email.",
       };
     }
 
