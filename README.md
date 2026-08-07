@@ -1,70 +1,59 @@
-# Getting Started with Create React App
+# 96 Nation — Ticketing Hub
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Mobile-first ticketing and content site for **96nation.net**: events, checkout, Genesis forms, and owner admin.
 
-## Available Scripts
+Stack (target): **Next.js 15 App Router**, **TypeScript**, **Tailwind CSS v4**, Sanity, Supabase, Stripe, Resend, Vercel.
 
-In the project directory, you can run:
+System design lives in [`DESIGN.md`](./DESIGN.md).
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Node.js 20+ and npm
+- Accounts for SaaS services listed under Phase 0 (not required to run the hello scaffold)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting started
 
-### `npm test`
+```bash
+npm install
+cp .env.example .env.local   # fill values as integrations land
+npm run dev
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Open [http://localhost:3000](http://localhost:3000). You should see the **96 Nation** hello page with Tailwind utility styles applied.
 
-### `npm run build`
+```bash
+npm run build   # production build
+npm run start   # serve production build
+npm run lint
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Phase 0 checklist (ops — not a code PR)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Before production cutover, complete the foundations checklist in [`DESIGN.md`](./DESIGN.md#phase-0--foundations-ops-checklist-not-a-code-pr):
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- [ ] Registrar / DNS owner named
+- [ ] Domain pointing when ready (feature-complete on `*.vercel.app` without custom domain)
+- [ ] Create projects: **Vercel**, **Sanity**, **Supabase**, **Stripe** (test), **Resend**, **Upstash**, **Sentry**
+- [ ] Resend domain verify (SPF/DKIM) before real email
+- [ ] Env matrix: local / preview / production — see **Appendix E** in `DESIGN.md` and [`.env.example`](./.env.example)
 
-### `npm run eject`
+Custom domain DNS is **not** a merge blocker for early PRs.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project layout
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```text
+app/                 # Next.js App Router
+  layout.tsx
+  page.tsx           # Hello / brand placeholder
+  globals.css        # @import "tailwindcss"
+public/
+postcss.config.mjs   # @tailwindcss/postcss
+.env.example
+DESIGN.md
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Product routes (events, checkout, admin, studio) land in later PRs per the design rollout.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## License / ownership
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Private project for 96 Nation.
