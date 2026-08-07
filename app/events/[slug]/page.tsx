@@ -14,6 +14,7 @@ import {
   isSoldOutFromCapacity,
   isTicketOnSale,
 } from "@/lib/events";
+import { isTicketingEnabled } from "@/lib/env/ticketing";
 import { getEventBySlug, getSiteSettings } from "@/lib/sanity/queries";
 import { urlForImage } from "@/lib/sanity/image";
 import { buildPageMetadata } from "@/lib/seo";
@@ -81,6 +82,7 @@ export default async function EventDetailPage({
   const ticketTypes = event.ticketTypes ?? [];
   const hasBody = Boolean(event.body && event.body.length > 0);
   const promoUrl = sanitizeHref(event.promoVideoUrl);
+  const ticketingEnabled = isTicketingEnabled();
 
   return (
     <Container className="py-12">
@@ -192,6 +194,10 @@ export default async function EventDetailPage({
           ) : soldOut ? (
             <p className="mt-3 max-w-prose text-muted" role="status">
               This event is sold out.
+            </p>
+          ) : !ticketingEnabled ? (
+            <p className="mt-3 max-w-prose text-muted" role="status">
+              Online ticketing is temporarily unavailable. Check back soon.
             </p>
           ) : ticketTypes.length === 0 ? (
             <p className="mt-3 max-w-prose text-muted">
