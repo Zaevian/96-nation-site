@@ -1,0 +1,9 @@
+# Minimal Supabase CLI config for local migrations + seed.
+# Full project linking is done via `supabase link` (not committed secrets).
+
+[db]
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
