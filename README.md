@@ -39,20 +39,39 @@ Before production cutover, complete the foundations checklist in [`DESIGN.md`](.
 
 Custom domain DNS is **not** a merge blocker for early PRs.
 
+## Sanity Studio
+
+Embedded CMS at **[http://localhost:3000/studio](http://localhost:3000/studio)** when env is set:
+
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=...
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01
+# optional:
+SANITY_API_READ_TOKEN=
+```
+
+Without a project id, `/studio` shows setup instructions and the production build still succeeds. Schemas, desk structure, seed steps: [`docs/SANITY.md`](./docs/SANITY.md).
+
 ## Project layout
 
 ```text
 app/                 # Next.js App Router
   layout.tsx
   page.tsx           # Hello / brand placeholder
+  studio/[[...tool]] # Embedded Sanity Studio
   globals.css        # @import "tailwindcss"
+lib/sanity/          # client, env, image helpers
+sanity/              # schemaTypes, desk structure
+sanity.config.ts
+docs/SANITY.md       # seed + publish checklist
 public/
 postcss.config.mjs   # @tailwindcss/postcss
 .env.example
 DESIGN.md
 ```
 
-Product routes (events, checkout, admin, studio) land in later PRs per the design rollout.
+Marketing routes, checkout, and `/admin` land in later PRs per the design rollout.
 
 ## License / ownership
 
