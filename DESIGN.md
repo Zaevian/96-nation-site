@@ -16,24 +16,34 @@
 
 96 Nation needs `96nation.net` rebuilt from a near-empty Create React App shell into a **mobile-first ticketing hub**: shareable deep links from Instagram/Facebook/TikTok, a checkout that collects **name, phone, and email**, reliable payments, and an admin experience a non-technical owner can use for events, copy, galleries, and videos. Parallel to ticketing, the site hosts **96 Nation: Genesis** forms (signups, service inquiries, contact).
 
-This design migrates the greenfield CRA app (`96-nation/`) to **Next.js App Router on Vercel**, uses **Sanity** as the content CMS, **Supabase Postgres** for **orders (buyer PII + quantity), form submissions, and authoritative inventory**, **Stripe Checkout** for paid tickets (PCI-minimal), and **Resend** for confirmation and admin notification emails. Door lists expand from order quantity at CSV export (no separate attendees table in v1). Inventory is **reserved at checkout-session create** (not only after payment), with TTL release and webhook idempotency that survives mid-handler failure. Free/RSVP events are a designed v1 path that skips Stripe but still collects PII and consumes capacity atomically.
+This design rebuilds 96nation.net as a **Next.js App Router** app on **Vercel** at the **repository root** (PR 1: CRA under `96-nation/` removed; package name `96-nation`). It uses **Sanity** as the content CMS, **Supabase Postgres** for **orders (buyer PII + quantity), form submissions, and authoritative inventory**, **Stripe Checkout** for paid tickets (PCI-minimal), and **Resend** for confirmation and admin notification emails. Door lists expand from order quantity at CSV export (no separate attendees table in v1). Inventory is **reserved at checkout-session create** (not only after payment), with TTL release and webhook idempotency that survives mid-handler failure. Free/RSVP events are a designed v1 path that skips Stripe but still collects PII and consumes capacity atomically.
 
 ---
 
 ## Background & Motivation
 
-### Current state
+### Current state (post–PR 1)
 
 | Area | State |
 |------|--------|
+| App | **Next.js 15 App Router + TypeScript at repository root** (`package.json` name `96-nation`; no nested app folder) |
+| UI | Hello page brand placeholder (“96 Nation”); product routes not yet built |
+| Styling | **Tailwind CSS v4 wired** via `@tailwindcss/postcss` + `app/globals.css` `@import "tailwindcss"`; dark-first CSS tokens |
+| Routing | App Router only (`app/page.tsx`); no product routes yet |
+| Backend / CMS / auth / payments | None (land in later PRs) |
+| Domain | `96nation.net` DNS may still be unresolved; feature-complete on `*.vercel.app` without custom domain |
+| Brand context | Tallahassee-area music / local talent; Instagram-driven all-ages shows (historically ~$7 tickets) |
+| Repo hygiene | Project README + `.env.example` at root; `DESIGN.md` retained |
+
+### Pre-migration state (historical — superseded by PR 1)
+
+| Area | State (before PR 1) |
+|------|--------|
 | App | CRA (`react-scripts` 5.0.1) under `96-nation/` |
 | UI | Default boilerplate (`src/App.js` logo spin + “Learn React”) |
-| Styling | Tailwind CSS ^4.1.2 in `devDependencies` but **not wired** (no `tailwind.config.*`, no PostCSS app config, no `@import "tailwindcss"` / utilities in `src/index.css` or `App.css`) |
+| Styling | Tailwind CSS ^4.1.2 in `devDependencies` but **not wired** |
 | Routing | None |
-| Backend / CMS / auth / payments | None |
-| Domain | `96nation.net` DNS fetch fails (unregistered, expired, or not pointed) |
-| Brand context | Tallahassee-area music / local talent; Instagram-driven all-ages shows (historically ~$7 tickets) |
-| Repo hygiene | Workspace root and `96-nation/` both have stock CRA README — replace with real project README in PR 1/12 |
+| Repo hygiene | Workspace root and `96-nation/` both had stock CRA README |
 
 ### Pain points this design addresses
 
@@ -164,49 +174,50 @@ flowchart TB
 
 ### Repository layout (target)
 
-**Replace `96-nation/` CRA tree with Next.js app** (delete `src/`, CRA `public/index.html` SPA shell; keep app name).
+**Next.js app at repository root** (PR 1 done: CRA under `96-nation/` removed; package name remains `96-nation` without a nested app folder). Paths below are root-relative.
 
 ```text
-96-nation/
-  app/
-    (marketing)/
-    events/
-      page.tsx
-      [slug]/page.tsx
-    checkout/
-      [eventSlug]/page.tsx
-      success/page.tsx
-      cancel/page.tsx
-    t/[code]/route.ts
-    api/
-      stripe/webhook/route.ts
-      forms/[type]/route.ts
-      checkout/session/route.ts
-      checkout/rsvp/route.ts
-      inventory/sync/route.ts      # Sanity → Postgres capacity sync (server + secret)
-      revalidate/route.ts
-      health/route.ts
-      cron/release-reservations/route.ts
-      cron/reconcile-orders/route.ts
-    admin/
-      layout.tsx                   # auth gate
-      orders/
-      forms/
-      login/
-    studio/[[...tool]]/page.tsx    # embedded Sanity Studio
-  components/
-  lib/
-    sanity/
-    supabase/                      # server-only service client for ticketing writes
-    stripe.ts
-    inventory.ts
-    rate-limit.ts                  # Upstash
-    email/
-    validations/                   # zod: phone E.164, checkout, forms
+app/
+  (marketing)/
+  events/
+    page.tsx
+    [slug]/page.tsx
+  checkout/
+    [eventSlug]/page.tsx
+    success/page.tsx
+    cancel/page.tsx
+  t/[code]/route.ts
+  api/
+    stripe/webhook/route.ts
+    forms/[type]/route.ts
+    checkout/session/route.ts
+    checkout/rsvp/route.ts
+    inventory/sync/route.ts      # Sanity → Postgres capacity sync (server + secret)
+    revalidate/route.ts
+    health/route.ts
+    cron/release-reservations/route.ts
+    cron/reconcile-orders/route.ts
+  admin/
+    layout.tsx                   # auth gate
+    orders/
+    forms/
+    login/
+  studio/[[...tool]]/page.tsx    # embedded Sanity Studio
+components/
+lib/
   sanity/
-  supabase/migrations/
-  docs/
-  scripts/                         # data-subject export/delete, seed
+  supabase/                      # server-only service client for ticketing writes
+  stripe.ts
+  inventory.ts
+  rate-limit.ts                  # Upstash
+  email/
+  validations/                   # zod: phone E.164, checkout, forms
+sanity/
+supabase/migrations/
+docs/
+scripts/                         # data-subject export/delete, seed
+package.json                     # name: "96-nation"
+DESIGN.md
 ```
 
 ### Information architecture / site map
