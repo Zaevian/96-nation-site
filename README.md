@@ -25,8 +25,10 @@ Open [http://localhost:3000](http://localhost:3000). You should see the **96 Nat
 npm run build   # production build
 npm run start   # serve production build
 npm run lint
-npm run test:a11y   # axe + skip-link + 320px smoke on /
+npm run build && npm run test:a11y   # requires a prior build (Playwright starts `next start`)
 ```
+
+`npm run test:a11y` serves the production build via `next start`, so run **`npm run build` first** (or chain as above). CI builds before axe automatically.
 
 ## Phase 0 checklist (ops — not a code PR)
 

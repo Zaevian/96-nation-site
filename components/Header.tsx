@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { primaryNav } from "@/lib/nav";
 import { Container } from "@/components/ui/Container";
 
@@ -10,29 +10,35 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeMenu = useCallback((restoreFocus = false) => {
+    setOpen(false);
+    if (restoreFocus) {
+      // Defer until panel is hidden so focus is not left on a display:none node
+      queueMicrotask(() => {
+        menuButtonRef.current?.focus();
+      });
+    }
+  }, []);
 
   // Close mobile menu on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Escape closes menu
+  // Escape closes menu and restores focus to the toggle (disclosure pattern)
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeMenu(true);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
-
-  // Prevent body scroll when menu open (mobile)
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  }, [open, closeMenu]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur-sm">
@@ -73,6 +79,7 @@ export function Header() {
 
         {/* Mobile menu toggle */}
         <button
+          ref={menuButtonRef}
           type="button"
           className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-border text-fg md:hidden"
           aria-expanded={open}
@@ -88,7 +95,7 @@ export function Header() {
         </button>
       </Container>
 
-      {/* Mobile panel */}
+      {/* Mobile panel — simple disclosure (no modal focus trap / body scroll lock) */}
       <div
         id={menuId}
         className={`border-t border-border bg-surface md:hidden ${

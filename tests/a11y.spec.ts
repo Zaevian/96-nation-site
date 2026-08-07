@@ -1,6 +1,18 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+function formatViolations(
+  violations: { id: string; impact?: string | null; help: string; nodes: { length: number }[] }[],
+) {
+  if (violations.length === 0) return "clean";
+  return violations
+    .map(
+      (v) =>
+        `[${v.impact ?? "unknown"}] ${v.id}: ${v.help} (${v.nodes.length} node(s))`,
+    )
+    .join("\n");
+}
+
 test.describe("accessibility smoke", () => {
   test("home page has no serious axe violations", async ({ page }) => {
     await page.goto("/");
@@ -10,13 +22,20 @@ test.describe("accessibility smoke", () => {
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
       .analyze();
 
+    // Hard gate: serious + critical. Full list is always in the failure message.
     const serious = results.violations.filter(
       (v) => v.impact === "serious" || v.impact === "critical",
     );
 
     expect(
       serious,
-      serious.map((v) => `${v.id}: ${v.help}`).join("\n") || "clean",
+      [
+        "Serious/critical violations:",
+        formatViolations(serious),
+        "",
+        "All violations (including moderate/minor):",
+        formatViolations(results.violations),
+      ].join("\n"),
     ).toEqual([]);
   });
 
@@ -43,5 +62,26 @@ test.describe("accessibility smoke", () => {
     );
     // Allow 1px subpixel tolerance
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
+  });
+
+  test("mobile menu opens, Escape closes and restores focus to toggle", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto("/");
+
+    const toggle = page.getByRole("button", { name: /menu/i });
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await expect(
+      page.getByRole("navigation", { name: "Primary mobile" }).getByRole("link").first(),
+    ).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toBeFocused();
   });
 });
