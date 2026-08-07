@@ -1,36 +1,38 @@
 # Environment variables
 
-Draft matrix for local / Vercel preview / production.  
-**Never commit `.env` or service role keys.** Rotate secrets in provider dashboards → update Vercel env → redeploy (see RUNBOOK when published).
+Matrix for **local / Vercel preview / production**.  
+Canonical sketch also lives in root [`.env.example`](../.env.example).  
+**Never commit `.env` or service role keys.** Rotation: provider dashboard → Vercel env → redeploy ([`RUNBOOK.md`](./RUNBOOK.md)).
 
 | Variable | Local | Preview | Prod | Public? | Notes |
 |----------|-------|---------|------|---------|--------|
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://*.vercel.app` | `https://96nation.net` | yes | Canonical origin for redirects, OG, success links |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://*.vercel.app` | `https://96nation.net` | yes | Canonical origin for redirects, OG, success links (no trailing slash) |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | ✓ | ✓ | ✓ | yes | Sanity project |
 | `NEXT_PUBLIC_SANITY_DATASET` | `production` or `development` | ✓ | `production` | yes | |
-| `NEXT_PUBLIC_SANITY_API_VERSION` | ✓ | ✓ | ✓ | yes | e.g. `2025-01-01` (match root `.env.example`) |
+| `NEXT_PUBLIC_SANITY_API_VERSION` | ✓ | ✓ | ✓ | yes | e.g. `2025-01-01` (match `.env.example`) |
 | `SANITY_API_READ_TOKEN` | ✓ | ✓ | ✓ | **no** | Server reads / drafts |
-| `SANITY_PREVIEW_SECRET` | ✓ | ✓ | ✓ | **no** | Draft preview gate |
+| `SANITY_PREVIEW_SECRET` | ✓ | ✓ | ✓ | **no** | Draft preview gate (optional v1) |
 | `SANITY_REVALIDATE_SECRET` | ✓ | ✓ | ✓ | **no** | On-demand revalidation webhook |
 | `NEXT_PUBLIC_SUPABASE_URL` | ✓ | ✓ | ✓ | yes | Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✓ | ✓ | ✓ | yes | Admin magic-link auth only in v1 |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✓ | ✓ | ✓ | **no** | **Server only** — orders, inventory, forms, webhooks (bypasses RLS) |
-| `STRIPE_SECRET_KEY` | `sk_test_…` | `sk_test_…` | `sk_live_…` | **no** | |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_` (CLI) | `whsec_` | `whsec_` | **no** | Per-endpoint secret |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_test_…` | `pk_test_…` | `pk_live_…` | yes | If client needs it |
+| `STRIPE_SECRET_KEY` | `sk_test_…` | `sk_test_…` | `sk_live_…` | **no** | Live keys only on Production at cutover |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_` (CLI) | `whsec_` | `whsec_` | **no** | Per-endpoint signing secret |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_test_…` | `pk_test_…` | `pk_live_…` | yes | If client Checkout needs it |
 | `RESEND_API_KEY` | ✓ | ✓ | ✓ | **no** | Transactional email |
-| `EMAIL_FROM` | `onboarding@resend.dev` | verified domain | verified domain | **no** | |
+| `EMAIL_FROM` | `onboarding@resend.dev` | verified domain | verified domain | **no** | Must match verified domain in prod |
 | `ADMIN_NOTIFY_EMAIL` | ✓ | ✓ | ✓ | **no** | Form / ops alerts |
-| `ADMIN_EMAILS` | comma list | comma list | comma list | **no** | Allowlist for `/admin` |
-| `UPSTASH_REDIS_REST_URL` | ✓ | ✓ | ✓ | **no** | Rate limits |
+| `ADMIN_EMAILS` | comma list | comma list | comma list | **no** | Allowlist for `/admin` (lowercase match) |
+| `UPSTASH_REDIS_REST_URL` | ✓ | ✓ | ✓ | **no** | Rate limits (multi-instance) |
 | `UPSTASH_REDIS_REST_TOKEN` | ✓ | ✓ | ✓ | **no** | |
 | `SENTRY_DSN` | optional | ✓ | **required** before live ticketing | yes (public DSN OK) | |
 | `CRON_SECRET` | ✓ | ✓ | ✓ | **no** | `Authorization: Bearer` for `/api/cron/*` |
 | `INVENTORY_SYNC_SECRET` | ✓ | ✓ | ✓ | **no** | Sanity → Postgres capacity sync |
-| `NEXT_PUBLIC_TICKETING_ENABLED` | `true` | `true` | `true` | yes | Feature flag |
-| `NEXT_PUBLIC_MAINTENANCE_MODE` | `false` | `false` | `false` | yes | |
-| `FACILITY_FEE_CENTS` | `100` | `100` | `100` (default $1.00; owner may set other values incl. `0`) | **no** | Snapshotted onto orders at create |
+| `NEXT_PUBLIC_TICKETING_ENABLED` | `true` | `true` | `true` | yes | Feature flag; `false` kills checkout CTAs |
+| `NEXT_PUBLIC_MAINTENANCE_MODE` | `false` | `false` | `false` | yes | Reserved / site messaging flag |
+| `FACILITY_FEE_CENTS` | `100` | `100` | `100` (default $1.00; owner may set other values incl. `0`) | **no** | Snapshotted onto paid orders at create |
 | `DEFAULT_PHONE_REGION` | `US` | `US` | `US` | **no** | E.164 parsing default |
+| `ALLOW_UNPERSISTED_FORMS` | optional `1` | **unset** | **never** | **no** | Dev-only: form POST may 200 without service role |
 
 ## Supabase access model (v1)
 
@@ -55,6 +57,7 @@ NEXT_PUBLIC_SANITY_PROJECT_ID=
 NEXT_PUBLIC_SANITY_DATASET=production
 NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01
 SANITY_API_READ_TOKEN=
+SANITY_PREVIEW_SECRET=
 SANITY_REVALIDATE_SECRET=
 
 STRIPE_SECRET_KEY=sk_test_...
@@ -76,15 +79,22 @@ FACILITY_FEE_CENTS=100
 DEFAULT_PHONE_REGION=US
 NEXT_PUBLIC_TICKETING_ENABLED=true
 NEXT_PUBLIC_MAINTENANCE_MODE=false
+
+# Dev-only — never set in production:
+# ALLOW_UNPERSISTED_FORMS=1
 ```
 
 ## Cron auth
 
-Vercel Cron invokes `GET /api/cron/*` with `Authorization: Bearer ${CRON_SECRET}` when `CRON_SECRET` is set in the project env. Schedules live in `vercel.json` (`release-reservations` every 5m, `reconcile-orders` every 15m).
+Vercel Cron invokes `GET /api/cron/*` with `Authorization: Bearer ${CRON_SECRET}` when `CRON_SECRET` is set. Schedules live in `vercel.json`:
+
+- `release-reservations` — every 5m  
+- `reconcile-orders` — every 15m  
 
 ## Stripe webhook
 
-Point Stripe to `POST /api/stripe/webhook` and set `STRIPE_WEBHOOK_SECRET` to the endpoint signing secret (`whsec_…`). Local: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
+Point Stripe to `POST /api/stripe/webhook` and set `STRIPE_WEBHOOK_SECRET` to the endpoint signing secret (`whsec_…`).  
+Local: `stripe listen --forward-to localhost:3000/api/stripe/webhook` (see [`RUNBOOK.md`](./RUNBOOK.md)).
 
 ## Migrations
 
@@ -92,7 +102,8 @@ SQL lives in `supabase/migrations/`. Apply with Supabase CLI (`supabase db push`
 
 ## Rotation
 
-1. Rotate key in Supabase / Stripe / Resend / Upstash dashboard.  
+1. Rotate key in Supabase / Stripe / Resend / Upstash / Sanity dashboard.  
 2. Update Vercel project env (preview + production as needed).  
 3. Redeploy.  
-4. Invalidate old webhook secrets and re-point Stripe CLI / endpoints.
+4. Invalidate old webhook secrets and re-point Stripe CLI / endpoints.  
+5. On personnel change: rotate service role + Stripe + remove dashboard users ([`CREDENTIALS_MAP.md`](./CREDENTIALS_MAP.md)).

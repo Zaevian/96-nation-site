@@ -1,94 +1,149 @@
 # 96 Nation — Ticketing Hub
 
-Mobile-first ticketing and content site for **96nation.net**: events, checkout, Genesis forms, and owner admin.
+Mobile-first ticketing and content site for **[96nation.net](https://96nation.net)**: events, Stripe checkout / free RSVP, Genesis forms, Sanity CMS, and owner admin.
 
-Stack (target): **Next.js 15 App Router**, **TypeScript**, **Tailwind CSS v4**, Sanity, Supabase, Stripe, Resend, Vercel.
+| Layer | Stack |
+|-------|--------|
+| App | **Next.js 15** App Router, **TypeScript**, **Tailwind CSS v4** |
+| CMS | **Sanity** (embedded Studio at `/studio`) |
+| Data | **Supabase** Postgres (orders, inventory, forms) + Auth (admin magic link) |
+| Payments | **Stripe Checkout** (hosted) |
+| Email | **Resend** |
+| Host | **Vercel** (cron, previews, env) |
+| Observability | **Sentry** · rate limits **Upstash** |
 
-System design lives in [`DESIGN.md`](./DESIGN.md).
+System design: [`DESIGN.md`](./DESIGN.md).
 
-## Prerequisites
+---
 
-- Node.js 20+ and npm
-- Accounts for SaaS services listed under Phase 0 (not required to run the hello scaffold)
-
-## Getting started
+## Quick start
 
 ```bash
 npm install
-cp .env.example .env.local   # fill values as integrations land
-npm run dev
+cp .env.example .env.local   # fill as integrations come online
+npm run dev                  # http://localhost:3000
 ```
-
-Open [http://localhost:3000](http://localhost:3000). You should see the **96 Nation** home page with global nav, skip link, and Tailwind utility styles applied.
 
 ```bash
-npm run build   # production build
-npm run start   # serve production build
+npm run build
+npm run start
 npm run lint
-npm run build && npm run test:a11y   # requires a prior build (Playwright starts `next start`)
+npm run test:unit
+npm run build && npm run test:a11y   # axe smoke needs a prior build
 ```
 
-`npm run test:a11y` serves the production build via `next start`, so run **`npm run build` first** (or chain as above). CI builds before axe automatically.
+Node.js **20+** required (`engines` in `package.json`).
 
-## Phase 0 checklist (ops — not a code PR)
+Without SaaS credentials the app still **builds** and serves marketing stubs; Studio shows setup instructions; checkout/admin need env (see below).
 
-Before production cutover, complete the foundations checklist in [`DESIGN.md`](./DESIGN.md#phase-0--foundations-ops-checklist-not-a-code-pr):
+---
 
-- [ ] Registrar / DNS owner named
-- [ ] Domain pointing when ready (feature-complete on `*.vercel.app` without custom domain)
-- [ ] Create projects: **Vercel**, **Sanity**, **Supabase**, **Stripe** (test), **Resend**, **Upstash**, **Sentry**
-- [ ] Resend domain verify (SPF/DKIM) before real email
-- [ ] Env matrix: local / preview / production — see **Appendix E** in `DESIGN.md` and [`.env.example`](./.env.example)
+## Documentation (handoff package)
 
-Custom domain DNS is **not** a merge blocker for early PRs.
+| Doc | Contents |
+|-----|----------|
+| [`docs/ENV.md`](./docs/ENV.md) | **Every env var** — local / preview / prod matrix, rotation |
+| [`docs/ADMIN.md`](./docs/ADMIN.md) | Owner guide: Studio publish, orders, CSV, refunds, forms |
+| [`docs/RUNBOOK.md`](./docs/RUNBOOK.md) | Deploy, Stripe CLI, webhooks, daily checks, rollback |
+| [`docs/CUTOVER.md`](./docs/CUTOVER.md) | **Phase 0** + **live ticketing** cutover checklist |
+| [`docs/CREDENTIALS_MAP.md`](./docs/CREDENTIALS_MAP.md) | Who owns which SaaS (fill placeholders at handoff) |
+| [`docs/COSTS.md`](./docs/COSTS.md) | Rough monthly SaaS + Stripe fee notes |
+| [`docs/A11Y.md`](./docs/A11Y.md) | WCAG checklist for editors + engineers |
+| [`docs/SANITY.md`](./docs/SANITY.md) | CMS seed, schemas, revalidation webhook |
+| [`.env.example`](./.env.example) | Copy-paste env skeleton |
+
+**Kill switch:** set `NEXT_PUBLIC_TICKETING_ENABLED=false` in Vercel Production and redeploy (see RUNBOOK).
+
+**PII scripts (stubs):** [`scripts/pii-export.ts`](./scripts/pii-export.ts), [`scripts/pii-delete.ts`](./scripts/pii-delete.ts).
+
+---
+
+## Phase 0 & go-live
+
+Ops foundations (accounts, DNS, Resend domain, env matrix) and live Stripe cutover are tracked in:
+
+**[`docs/CUTOVER.md`](./docs/CUTOVER.md)**
+
+Custom domain DNS is **not** a merge blocker for product PRs; feature-complete on `*.vercel.app` is fine until DNS is ready.
+
+---
+
+## Key routes
+
+| Path | Purpose |
+|------|---------|
+| `/` | Home (Sanity site settings + featured events) |
+| `/events`, `/events/[slug]` | Event list + detail |
+| `/t/[code]` | Short link → event (Sanity `shortCode`) |
+| `/checkout/[slug]` | Ticket purchase / RSVP |
+| `/checkout/success`, `/checkout/cancel` | Post-Checkout |
+| `/galleries`, `/videos` | Media |
+| `/genesis`, `/contact` | Forms |
+| `/privacy`, `/terms` | Legal |
+| `/studio` | Embedded Sanity Studio |
+| `/admin` | Orders + forms (allowlisted email) |
+| `/api/health` | Uptime probe |
+| `/api/stripe/webhook` | Stripe webhooks |
+| `/api/cron/*` | Reservation release + order reconcile |
+
+---
+
+## Project layout
+
+```text
+app/                 # App Router pages + API routes
+components/          # UI, forms, admin, legal
+lib/                 # Sanity, Supabase, Stripe, orders, email, env
+sanity/              # Schema types + desk structure
+supabase/migrations/ # Postgres inventory, orders, RLS, RPCs
+docs/                # Handoff documentation
+scripts/             # PII export/delete stubs
+tests/               # Playwright axe + unit tests
+.github/workflows/   # CI: lint, build, unit, axe
+```
+
+---
 
 ## Sanity Studio
-
-Embedded CMS at **[http://localhost:3000/studio](http://localhost:3000/studio)** when env is set:
 
 ```bash
 NEXT_PUBLIC_SANITY_PROJECT_ID=...
 NEXT_PUBLIC_SANITY_DATASET=production
 NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01
-# optional:
-SANITY_API_READ_TOKEN=
 ```
 
-Without a project id, `/studio` shows setup instructions and the production build still succeeds. Schemas, desk structure, seed steps: [`docs/SANITY.md`](./docs/SANITY.md).
+Open **[http://localhost:3000/studio](http://localhost:3000/studio)**. Full seed + revalidation: [`docs/SANITY.md`](./docs/SANITY.md).
 
-## Project layout
+---
 
-```text
-app/                 # Next.js App Router (marketing + stubs + studio)
-  layout.tsx         # Root layout + SiteShell + default SEO
-  page.tsx           # Home (siteSettings hero, featured events, about)
-  about|privacy|terms|genesis  # CMS pages with stub fallbacks
-  studio/[[...tool]] # Embedded Sanity Studio
-components/          # Header, Footer, PortableText, CmsPageView, ui/*
-lib/nav.ts           # Primary + footer nav config
-lib/seo.ts           # generateMetadata / OG helpers
-lib/sanity/          # client, env, image, queries, types
-sanity/              # schemaTypes, desk structure
-sanity.config.ts
-docs/SANITY.md       # seed + publish checklist
-tests/a11y.spec.ts   # Playwright axe smoke (/, /privacy)
-public/
-postcss.config.mjs   # @tailwindcss/postcss
-.env.example
-DESIGN.md
-```
+## Admin
 
-### Design tokens & a11y (PR 2)
+1. Set `ADMIN_EMAILS=you@example.com` and Supabase URL/anon + service role.
+2. `/admin/login` → magic link.
+3. Orders (CSV, reconcile) and form inbox.
 
-Placeholder AA-safe tokens live in `app/globals.css` (bg `#0a0a0a`, fg `#f5f5f5`, accent `#5eead4`). Re-run the a11y checklist when the brand kit lands.
+Owner steps: [`docs/ADMIN.md`](./docs/ADMIN.md).
 
-- Skip link → `#main-content`
-- Landmarks: header / main / footer
-- Mobile hamburger nav; visible `:focus-visible`; `prefers-reduced-motion`
-- CI: lint + build + axe smoke (`.github/workflows/ci.yml`)
+---
 
-Marketing home and static pages read Sanity when configured (graceful stubs without credentials). Events detail, galleries, checkout, and `/admin` land in later PRs per the design rollout.
+## CI
+
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) on `main` and `execute-plan/**`:
+
+1. `npm ci`
+2. `npm run lint`
+3. `npm run test:unit`
+4. `npm run build`
+5. Playwright Chromium + `npm run test:a11y`
+
+---
+
+## Design tokens & a11y
+
+Placeholder AA-safe dark tokens in `app/globals.css` (bg `#0a0a0a`, fg `#f5f5f5`, accent `#5eead4`). Skip link → `#main-content`; landmarks; mobile nav; `:focus-visible`. Editor/engineer checklist: [`docs/A11Y.md`](./docs/A11Y.md).
+
+---
 
 ## License / ownership
 
-Private project for 96 Nation.
+Private project for 96 Nation. Credentials ownership: [`docs/CREDENTIALS_MAP.md`](./docs/CREDENTIALS_MAP.md).
