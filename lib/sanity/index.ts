@@ -17,6 +17,13 @@ export {
   getPageBySlug,
   getSiteSettings,
 } from "./queries";
+export {
+  allSanityTags,
+  eventTag,
+  pageTag,
+  SANITY_TAGS,
+  tagsForSanityType,
+} from "./tags";
 export type {
   CmsPage,
   EventDetail,

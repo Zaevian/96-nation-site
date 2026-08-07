@@ -11,9 +11,46 @@ Embedded Studio route: **`/studio`**.
 | `NEXT_PUBLIC_SANITY_API_VERSION` | yes | e.g. `2025-01-01` |
 | `SANITY_API_READ_TOKEN` | optional | Draft/preview reads on the server |
 | `SANITY_PREVIEW_SECRET` | optional | Presentation / draft preview (later) |
-| `SANITY_REVALIDATE_SECRET` | optional | On-demand revalidation webhook |
+| `SANITY_REVALIDATE_SECRET` | optional for local; **required in prod** for publish→site updates | Shared secret for `POST /api/revalidate` |
 
 Copy from `.env.example` into `.env.local`. Without `NEXT_PUBLIC_SANITY_PROJECT_ID`, `/studio` shows a setup message and **`npm run build` still passes**.
+
+## On-demand revalidation
+
+Publish in Studio should update public pages without a full redeploy.
+
+1. Set `SANITY_REVALIDATE_SECRET` (long random string) in Vercel env.
+2. In [Sanity project → API → Webhooks](https://www.sanity.io/manage), create a webhook:
+   - **URL:** `https://96nation.net/api/revalidate` (or preview host)
+   - **Trigger:** Create / Update / Delete on dataset
+   - **Filter (example):** `_type in ["event", "page", "siteSettings", "gallery", "video"]`
+   - **Projection (optional):** `{_type, "slug": slug.current}`
+   - **Auth (headers only — never put the secret in the URL):**
+     - Preferred: `Authorization: Bearer <SANITY_REVALIDATE_SECRET>`
+     - Or: `x-sanity-revalidate-secret: <SANITY_REVALIDATE_SECRET>`
+     - Query `?secret=` is **not** accepted (leaks via access logs / proxies / referrers; same rule as cron + inventory sync)
+3. On success the route returns `{ ok: true, tags: [...], paths: [...] }` and calls `revalidateTag` / `revalidatePath`.
+
+Cache tags used by the app:
+
+| Tag | Content |
+|-----|---------|
+| `events` | Event list, detail, short links, home featured |
+| `event:{slug}` | Single event detail |
+| `site-settings` | Nav, home, about, default OG |
+| `pages` / `page:{slug}` | CMS pages (privacy, terms, …) |
+| `galleries` / `videos` | Media lists |
+
+**Local test:**
+
+```bash
+curl -X POST http://localhost:3000/api/revalidate \
+  -H "Authorization: Bearer $SANITY_REVALIDATE_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"_type":"event","slug":"sample-show"}'
+```
+
+Without the secret configured, the route returns **401** (build still succeeds).
 
 ## Content model
 

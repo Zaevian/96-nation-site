@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { EmptyState } from "@/components/EmptyState";
 import { EventCard } from "@/components/EventCard";
 import { PortableText } from "@/components/PortableText";
 import { ButtonLink } from "@/components/ui/Button";
@@ -48,16 +49,13 @@ function FeaturedEvents({ events }: { events: EventListItem[] }) {
         >
           Upcoming events
         </h2>
-        <p className="mt-3 max-w-prose text-muted">
-          No published events yet. Check back soon, or browse the{" "}
-          <Link
-            href="/events"
-            className="text-accent underline underline-offset-2"
-          >
-            events page
-          </Link>
-          .
-        </p>
+        <EmptyState
+          className="mt-4"
+          title="Nothing on the calendar yet"
+          description="Published shows will appear here and on the events page. Check back soon."
+          actionHref="/events"
+          actionLabel="View events"
+        />
       </section>
     );
   }
