@@ -63,7 +63,7 @@ Owner + engineer. Feature-complete on `*.vercel.app` is OK **without** custom do
 
 ### CI / quality
 
-- [ ] GitHub Actions CI green on main: lint + build + axe
+- [ ] GitHub Actions CI green on main: **lint + unit + build + axe** (see `.github/workflows/ci.yml`)
 - [ ] Manual a11y smoke per [`A11Y.md`](./A11Y.md) if brand tokens changed
 
 ---
@@ -104,18 +104,21 @@ Schedule a quiet window. Prefer a **small-capacity** first event.
 ### Flip to live
 
 1. [ ] Stripe Dashboard: create/update **live** webhook → `https://<prod-host>/api/stripe/webhook`
+   - Events: `checkout.session.completed`, `checkout.session.expired`, `charge.refunded`
 2. [ ] Copy live endpoint `whsec_…` → Vercel Production `STRIPE_WEBHOOK_SECRET`
-3. [ ] Set Production `STRIPE_SECRET_KEY=sk_live_…` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_…`
-4. [ ] Confirm `NEXT_PUBLIC_SITE_URL` matches the public origin buyers use
-5. [ ] `NEXT_PUBLIC_TICKETING_ENABLED=true`
-6. [ ] Redeploy Production
-7. [ ] **One real low-value purchase** (or Stripe live test if available) by owner/engineer:
+3. [ ] Set Production `STRIPE_SECRET_KEY=sk_live_…` (**required** for paid Checkout)
+4. [ ] Optional: `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_…` — **not used by v1 server Checkout**; set only if you want it ready for future client Stripe.js
+5. [ ] Confirm `NEXT_PUBLIC_SITE_URL` matches the public origin buyers use
+6. [ ] `NEXT_PUBLIC_TICKETING_ENABLED=true`
+7. [ ] Redeploy Production
+8. [ ] Force inventory sync for the first live event (`POST /api/inventory/sync` — [`RUNBOOK.md`](./RUNBOOK.md#force-inventory-sync))
+9. [ ] **One real low-value purchase** (or Stripe live test if available) by owner/engineer:
    - [ ] Pay → success page
    - [ ] Email confirmation
    - [ ] Order visible in `/admin/orders`
    - [ ] Webhook delivery **200** in Stripe live log
-8. [ ] Optional: full refund of the test order → status `refunded` + capacity restored
-9. [ ] Publish real event with intended capacity; share `/events/{slug}` or `/t/{code}`
+10. [ ] Optional: full refund of the test order → status `refunded` + capacity restored
+11. [ ] Publish real event with intended capacity; share `/events/{slug}` or `/t/{code}`
 
 ### First 48 hours / first 2 events
 

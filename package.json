@@ -11,7 +11,9 @@
     "start": "next start",
     "lint": "eslint",
     "test:unit": "node --test tests/door-csv.test.mjs",
-    "test:a11y": "playwright test tests/a11y.spec.ts"
+    "test:a11y": "playwright test tests/a11y.spec.ts",
+    "pii:export": "tsx scripts/pii-export.ts",
+    "pii:delete": "tsx scripts/pii-delete.ts"
   },
   "dependencies": {
     "@portabletext/react": "^7.0.1",
@@ -48,6 +50,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.18",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }

@@ -19,8 +19,8 @@ Operational procedures for engineers and the technical contact. Owner day-to-day
 Feature flags:
 
 ```bash
-NEXT_PUBLIC_TICKETING_ENABLED=true   # false hides CTAs / blocks checkout
-NEXT_PUBLIC_MAINTENANCE_MODE=false
+NEXT_PUBLIC_TICKETING_ENABLED=true   # false hides CTAs / blocks checkout (implemented)
+NEXT_PUBLIC_MAINTENANCE_MODE=false   # reserved v1 — no banner yet; do not rely on this
 FACILITY_FEE_CENTS=100               # paid orders only
 ```
 
@@ -46,7 +46,7 @@ supabase db push
 ### Stripe CLI (local webhooks)
 
 1. Install [Stripe CLI](https://stripe.com/docs/stripe-cli) and `stripe login`.
-2. Use **test** keys in `.env.local` (`sk_test_…`, `pk_test_…`).
+2. Use **test** keys in `.env.local` (`sk_test_…` required; publishable `pk_test_…` optional for v1 server Checkout).
 3. Forward events:
 
 ```bash
@@ -105,7 +105,10 @@ curl -s https://YOUR_HOST/api/health
 ## Stripe webhooks (production)
 
 - Endpoint: `POST https://96nation.net/api/stripe/webhook` (or current production host).
-- Events: at least `checkout.session.completed`, `checkout.session.expired`, `charge.refunded` / refund-related events as implemented.
+- Subscribe to these event types (handled in code):
+  - `checkout.session.completed` — fulfill paid order
+  - `checkout.session.expired` — release reservation / expire pending
+  - `charge.refunded` — mark refunded / restore capacity on full refund
 - Signing secret → `STRIPE_WEBHOOK_SECRET`.
 - Dashboard → Developers → Webhooks → delivery log for failures.
 
@@ -196,18 +199,57 @@ Does **not** undeploy the site; hides purchase CTAs and blocks checkout APIs.
 
 ---
 
+## Force inventory sync
+
+After changing ticket capacities in Sanity Studio, Postgres must upsert capacity rows.
+
+```bash
+# Preferred: by public event slug
+curl -sS -X POST "https://YOUR_HOST/api/inventory/sync" \
+  -H "Authorization: Bearer $INVENTORY_SYNC_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"slug":"sample-show"}'
+
+# By Sanity document _id
+curl -sS -X POST "https://YOUR_HOST/api/inventory/sync" \
+  -H "Authorization: Bearer $INVENTORY_SYNC_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"eventId":"EVENT_DOC_ID"}'
+
+# Explicit capacities (skip Sanity load for types)
+curl -sS -X POST "https://YOUR_HOST/api/inventory/sync" \
+  -H "Authorization: Bearer $INVENTORY_SYNC_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"eventId":"EVENT_DOC_ID","ticketTypes":[{"id":"general","capacity":100}]}'
+```
+
+Optional alternate header: `x-inventory-sync-secret: $INVENTORY_SYNC_SECRET` (prefer Bearer).  
+Expect `200` + `"ok": true` and per-type `results`. `422` means one or more ticket types failed (e.g. capacity below sold+reserved).
+
+Optional Sanity webhook on event create/update → same URL + Bearer header (never put secret in query string).
+
+Owner-facing short version: [`ADMIN.md`](./ADMIN.md#inventory-sync-after-capacity-changes).
+
+---
+
 ## Data subject requests (PII)
 
 Buyer/form PII lives in Supabase (`orders`, `form_submissions`). v1 tooling:
 
 ```bash
-# stubs — fill SUPABASE_* in env; see scripts for usage
-npx tsx scripts/pii-export.ts --email buyer@example.com
-npx tsx scripts/pii-delete.ts --email buyer@example.com --confirm
+# Requires devDependency `tsx` (npm install once). Prefer npm scripts:
+npm run pii:export -- --email buyer@example.com
+npm run pii:delete -- --email buyer@example.com --confirm
+
+# Equivalent:
+npx --yes tsx scripts/pii-export.ts --email buyer@example.com
+npx --yes tsx scripts/pii-delete.ts --email buyer@example.com --confirm
 ```
 
+Load `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` into the shell env (or `.env.local` via your runner).
+
 - **Export:** JSON of orders + form rows for that email (support / DSAR).
-- **Delete:** anonymize or hard-delete per policy in scripts (review before production use).
+- **Delete:** anonymize buyer fields on orders / delete form rows (`--confirm` required). Review legal retention before production use.
 - Prefer audited process; do not paste full dumps into Slack/email.
 
 ---

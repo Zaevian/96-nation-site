@@ -1,8 +1,9 @@
 /**
  * PII export stub — data subject / support export by email.
  *
- * Usage (after installing tsx or compiling):
- *   npx tsx scripts/pii-export.ts --email buyer@example.com
+ * Usage:
+ *   npm run pii:export -- --email buyer@example.com
+ *   npx --yes tsx scripts/pii-export.ts --email buyer@example.com
  *
  * Requires env:
  *   NEXT_PUBLIC_SUPABASE_URL

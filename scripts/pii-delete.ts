@@ -2,7 +2,8 @@
  * PII delete / anonymize stub — data subject erasure by email.
  *
  * Usage:
- *   npx tsx scripts/pii-delete.ts --email buyer@example.com --confirm
+ *   npm run pii:delete -- --email buyer@example.com --confirm
+ *   npx --yes tsx scripts/pii-delete.ts --email buyer@example.com --confirm
  *
  * Requires env:
  *   NEXT_PUBLIC_SUPABASE_URL

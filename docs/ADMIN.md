@@ -67,9 +67,30 @@ Sign in to `/admin` with **magic link** email (Supabase Auth). Your email must a
 
 On-demand revalidation (`POST /api/revalidate` with `SANITY_REVALIDATE_SECRET`) should refresh public pages without a full redeploy. Setup: [`SANITY.md`](./SANITY.md#on-demand-revalidation). If a page looks stale, wait a minute, hard-refresh, or redeploy.
 
-### Inventory sync
+### Inventory sync (after capacity changes)
 
-Ticket capacities in Postgres are kept in sync via `POST /api/inventory/sync` (secret: `INVENTORY_SYNC_SECRET`). After changing capacities in Studio, ensure sync has run (or re-publish / trigger webhook if configured). See RUNBOOK if inventory and Studio disagree.
+Postgres holds sold/reserved counts; Sanity holds the **capacity** you edit in Studio. After you change ticket type capacities (or create a new paid/RSVP event), force a sync so checkout does not use stale capacity.
+
+**Quick force-sync** (owner can ask engineer, or run if you have the secret):
+
+```bash
+# By event slug (loads ticket types from Sanity)
+curl -X POST "https://YOUR_HOST/api/inventory/sync" \
+  -H "Authorization: Bearer $INVENTORY_SYNC_SECRET" \
+  -H "Content-Type: application/json" \
+  -d "{\"slug\":\"your-event-slug\"}"
+
+# Or by Sanity document id
+curl -X POST "https://YOUR_HOST/api/inventory/sync" \
+  -H "Authorization: Bearer $INVENTORY_SYNC_SECRET" \
+  -H "Content-Type: application/json" \
+  -d "{\"eventId\":\"drafts.yourDocIdOrPublishedId\"}"
+```
+
+- Auth: `Authorization: Bearer ${INVENTORY_SYNC_SECRET}` (or header `x-inventory-sync-secret`). **Never** put the secret in the URL.
+- Success: `{ "ok": true, "eventId": "…", "results": [ { "ticketTypeId", "capacity", "ok": true } ] }`.
+- Lowering capacity below `sold + reserved` is rejected by the DB RPC — raise capacity or refund first.
+- Optional: configure a Sanity webhook to this path on event publish (same Bearer header pattern as revalidate — see [`RUNBOOK.md`](./RUNBOOK.md#force-inventory-sync)).
 
 ---
 

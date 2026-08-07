@@ -11,14 +11,14 @@ Canonical sketch also lives in root [`.env.example`](../.env.example).
 | `NEXT_PUBLIC_SANITY_DATASET` | `production` or `development` | ✓ | `production` | yes | |
 | `NEXT_PUBLIC_SANITY_API_VERSION` | ✓ | ✓ | ✓ | yes | e.g. `2025-01-01` (match `.env.example`) |
 | `SANITY_API_READ_TOKEN` | ✓ | ✓ | ✓ | **no** | Server reads / drafts |
-| `SANITY_PREVIEW_SECRET` | ✓ | ✓ | ✓ | **no** | Draft preview gate (optional v1) |
+| `SANITY_PREVIEW_SECRET` | optional | optional | optional | **no** | **Reserved — no runtime reader in v1.** Draft / Presentation preview later; setting it does nothing today |
 | `SANITY_REVALIDATE_SECRET` | ✓ | ✓ | ✓ | **no** | On-demand revalidation webhook |
 | `NEXT_PUBLIC_SUPABASE_URL` | ✓ | ✓ | ✓ | yes | Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✓ | ✓ | ✓ | yes | Admin magic-link auth only in v1 |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✓ | ✓ | ✓ | **no** | **Server only** — orders, inventory, forms, webhooks (bypasses RLS) |
-| `STRIPE_SECRET_KEY` | `sk_test_…` | `sk_test_…` | `sk_live_…` | **no** | Live keys only on Production at cutover |
+| `STRIPE_SECRET_KEY` | `sk_test_…` | `sk_test_…` | `sk_live_…` | **no** | Live keys only on Production at cutover; **required** for paid Checkout |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_` (CLI) | `whsec_` | `whsec_` | **no** | Per-endpoint signing secret |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_test_…` | `pk_test_…` | `pk_live_…` | yes | If client Checkout needs it |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | optional | optional | optional | yes | **Not required for v1** — Checkout is server-created with `STRIPE_SECRET_KEY` only. Keep for future client Stripe.js; safe to set live `pk_…` alongside cutover |
 | `RESEND_API_KEY` | ✓ | ✓ | ✓ | **no** | Transactional email |
 | `EMAIL_FROM` | `onboarding@resend.dev` | verified domain | verified domain | **no** | Must match verified domain in prod |
 | `ADMIN_NOTIFY_EMAIL` | ✓ | ✓ | ✓ | **no** | Form / ops alerts |
@@ -28,11 +28,11 @@ Canonical sketch also lives in root [`.env.example`](../.env.example).
 | `SENTRY_DSN` | optional | ✓ | **required** before live ticketing | yes (public DSN OK) | |
 | `CRON_SECRET` | ✓ | ✓ | ✓ | **no** | `Authorization: Bearer` for `/api/cron/*` |
 | `INVENTORY_SYNC_SECRET` | ✓ | ✓ | ✓ | **no** | Sanity → Postgres capacity sync |
-| `NEXT_PUBLIC_TICKETING_ENABLED` | `true` | `true` | `true` | yes | Feature flag; `false` kills checkout CTAs |
-| `NEXT_PUBLIC_MAINTENANCE_MODE` | `false` | `false` | `false` | yes | Reserved / site messaging flag |
+| `NEXT_PUBLIC_TICKETING_ENABLED` | `true` | `true` | `true` | yes | Feature flag; `false` kills checkout CTAs (**implemented**) |
+| `NEXT_PUBLIC_MAINTENANCE_MODE` | `false` | `false` | `false` | yes | **Reserved — no runtime reader in v1.** Setting it does **not** show a maintenance banner yet; use `NEXT_PUBLIC_TICKETING_ENABLED=false` to stop sales |
 | `FACILITY_FEE_CENTS` | `100` | `100` | `100` (default $1.00; owner may set other values incl. `0`) | **no** | Snapshotted onto paid orders at create |
 | `DEFAULT_PHONE_REGION` | `US` | `US` | `US` | **no** | E.164 parsing default |
-| `ALLOW_UNPERSISTED_FORMS` | optional `1` | **unset** | **never** | **no** | Dev-only: form POST may 200 without service role |
+| `ALLOW_UNPERSISTED_FORMS` | optional `1` | **unset** | **never** | **no** | Dev-only force-flag. Also: when `NODE_ENV !== "production"`, forms may soft-succeed without service role even if this is unset. **Never** set in Production |
 
 ## Supabase access model (v1)
 
@@ -83,6 +83,14 @@ NEXT_PUBLIC_MAINTENANCE_MODE=false
 # Dev-only — never set in production:
 # ALLOW_UNPERSISTED_FORMS=1
 ```
+
+### Forms persistence (local vs prod)
+
+| Environment | Behavior without service role |
+|-------------|-------------------------------|
+| `NODE_ENV !== "production"` | Soft-allow: form POST may return 200 without writing to Supabase (dev convenience) |
+| Production | Requires service role; missing DB → error. `ALLOW_UNPERSISTED_FORMS` must stay unset |
+| Any env + `ALLOW_UNPERSISTED_FORMS=1` | Explicit soft-allow (local only; **never** Production) |
 
 ## Cron auth
 

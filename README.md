@@ -54,7 +54,7 @@ Without SaaS credentials the app still **builds** and serves marketing stubs; St
 
 **Kill switch:** set `NEXT_PUBLIC_TICKETING_ENABLED=false` in Vercel Production and redeploy (see RUNBOOK).
 
-**PII scripts (stubs):** [`scripts/pii-export.ts`](./scripts/pii-export.ts), [`scripts/pii-delete.ts`](./scripts/pii-delete.ts).
+**PII scripts (stubs):** [`scripts/pii-export.ts`](./scripts/pii-export.ts), [`scripts/pii-delete.ts`](./scripts/pii-delete.ts) — `npm run pii:export -- --email …` / `npm run pii:delete -- --email … --confirm` (requires `tsx` devDependency).
 
 ---
 
