@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
@@ -7,6 +9,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  *
  * Never import this module into client components or expose
  * SUPABASE_SERVICE_ROLE_KEY to the browser.
+ * The `server-only` import fails the build if this module enters a client graph.
  */
 export function createServiceClient(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

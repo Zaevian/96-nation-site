@@ -8,7 +8,7 @@ Draft matrix for local / Vercel preview / production.
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://*.vercel.app` | `https://96nation.net` | yes | Canonical origin for redirects, OG, success links |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | ✓ | ✓ | ✓ | yes | Sanity project |
 | `NEXT_PUBLIC_SANITY_DATASET` | `production` or `development` | ✓ | `production` | yes | |
-| `NEXT_PUBLIC_SANITY_API_VERSION` | ✓ | ✓ | ✓ | yes | e.g. `2024-01-01` |
+| `NEXT_PUBLIC_SANITY_API_VERSION` | ✓ | ✓ | ✓ | yes | e.g. `2025-01-01` (match root `.env.example`) |
 | `SANITY_API_READ_TOKEN` | ✓ | ✓ | ✓ | **no** | Server reads / drafts |
 | `SANITY_PREVIEW_SECRET` | ✓ | ✓ | ✓ | **no** | Draft preview gate |
 | `SANITY_REVALIDATE_SECRET` | ✓ | ✓ | ✓ | **no** | On-demand revalidation webhook |
@@ -53,7 +53,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 NEXT_PUBLIC_SANITY_PROJECT_ID=
 NEXT_PUBLIC_SANITY_DATASET=production
-NEXT_PUBLIC_SANITY_API_VERSION=2024-01-01
+NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01
 SANITY_API_READ_TOKEN=
 SANITY_REVALIDATE_SECRET=
 

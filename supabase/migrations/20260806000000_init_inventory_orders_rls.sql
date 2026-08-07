@@ -1,6 +1,6 @@
 -- PR 7: Supabase schema — inventory, orders, forms, webhooks, outbox, audit
 -- Matches DESIGN.md inventory reservation model + Appendix B / D.
--- RLS: ENABLE on all tables; intentionally NO policies for anon/authenticated.
+-- RLS: ENABLE + FORCE on all tables; intentionally NO policies for anon/authenticated.
 -- Access: service role only from Next.js server (bypasses RLS).
 -- v1: no attendees table; door list expands from orders.quantity at export.
 
@@ -70,7 +70,8 @@ create table orders (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   paid_at timestamptz,
-  unique (idempotency_key)
+  unique (idempotency_key),
+  check (total_cents = unit_price_cents * quantity + facility_fee_cents)
 );
 
 create index orders_event_status_idx on orders (event_id, status);
@@ -86,6 +87,8 @@ comment on column orders.facility_fee_cents is
   'Snapshot of FACILITY_FEE_CENTS at create; 0 for free/RSVP.';
 comment on column orders.confirm_token_hash is
   'Hash of free-path success token; never store raw token.';
+comment on column orders.total_cents is
+  'Must equal unit_price_cents * quantity + facility_fee_cents (DB CHECK enforced).';
 
 -- ---------------------------------------------------------------------------
 -- form_submissions (Genesis + contact)
@@ -165,11 +168,12 @@ comment on column admin_audit_log.action is
   'csv_export | view_order | reconcile | data_delete | admin_cancel | ...';
 
 -- ---------------------------------------------------------------------------
--- updated_at helper
+-- updated_at helper (single source of truth for updated_at on UPDATE)
 -- ---------------------------------------------------------------------------
 create or replace function set_updated_at()
 returns trigger
 language plpgsql
+set search_path = pg_catalog, public
 as $$
 begin
   new.updated_at = now();
@@ -187,33 +191,64 @@ create trigger ticket_inventory_set_updated_at
 
 -- ---------------------------------------------------------------------------
 -- Inventory operations (Appendix B / inventory model)
--- Atomic reserve / commit / release; 0 rows = failure (sold out / bad state).
+-- Atomic reserve / commit / release. updated_at via trigger (not set here).
 -- ---------------------------------------------------------------------------
 
 -- Reserve qty at checkout-session create or RSVP start.
--- Fails closed when sold_count + reserved_count + qty > capacity.
+-- Distinguishes missing row (P0002 / no_data_found) from sold-out (P0001 / raise_exception).
+-- Returns the updated inventory row on success.
 create or replace function reserve_inventory(
   p_event_id text,
   p_ticket_type_id text,
   p_qty int
 )
-returns setof ticket_inventory
-language sql
+returns ticket_inventory
+language plpgsql
+set search_path = pg_catalog, public
 as $$
+declare
+  result ticket_inventory;
+begin
+  if p_qty is null or p_qty <= 0 then
+    raise exception 'reserve qty must be > 0' using errcode = '22023'; -- invalid_parameter_value
+  end if;
+
+  -- Lock row if present; distinguish missing inventory (not synced) from capacity fail.
+  select * into result
+  from ticket_inventory
+  where event_id = p_event_id
+    and ticket_type_id = p_ticket_type_id
+  for update;
+
+  if not found then
+    raise exception 'inventory row missing for %.% — sync from Sanity before sale',
+      p_event_id, p_ticket_type_id
+      using errcode = 'P0002'; -- no_data_found
+  end if;
+
+  if result.sold_count + result.reserved_count + p_qty > result.capacity then
+    raise exception 'SOLD_OUT: insufficient capacity for %.% (need %, remaining %)',
+      p_event_id,
+      p_ticket_type_id,
+      p_qty,
+      result.capacity - result.sold_count - result.reserved_count
+      using errcode = 'P0001'; -- raise_exception (map to SOLD_OUT in app)
+  end if;
+
   update ticket_inventory
   set
     reserved_count = reserved_count + p_qty,
-    version = version + 1,
-    updated_at = now()
+    version = version + 1
   where event_id = p_event_id
     and ticket_type_id = p_ticket_type_id
-    and p_qty > 0
-    and sold_count + reserved_count + p_qty <= capacity
-  returning *;
+  returning * into result;
+
+  return result;
+end;
 $$;
 
 comment on function reserve_inventory is
-  'Hold capacity at session create. 0 rows → SOLD_OUT. Call inside Tx1 with order insert.';
+  'Hold capacity at session create. Raises P0002 if row missing, P0001 if SOLD_OUT. Call inside Tx1 with order insert.';
 
 -- Commit reserved → sold (paid webhook or free RSVP finalize).
 create or replace function commit_inventory(
@@ -223,13 +258,13 @@ create or replace function commit_inventory(
 )
 returns setof ticket_inventory
 language sql
+set search_path = pg_catalog, public
 as $$
   update ticket_inventory
   set
     reserved_count = reserved_count - p_qty,
     sold_count = sold_count + p_qty,
-    version = version + 1,
-    updated_at = now()
+    version = version + 1
   where event_id = p_event_id
     and ticket_type_id = p_ticket_type_id
     and p_qty > 0
@@ -238,7 +273,7 @@ as $$
 $$;
 
 comment on function commit_inventory is
-  'Move reserved → sold on payment/RSVP success. Guard with order status=pending.';
+  'Move reserved → sold on payment/RSVP success. Guard with order status=pending. 0 rows = bad state.';
 
 -- Release reserved (expired session, admin cancel, Stripe create failure).
 create or replace function release_inventory(
@@ -248,12 +283,12 @@ create or replace function release_inventory(
 )
 returns setof ticket_inventory
 language sql
+set search_path = pg_catalog, public
 as $$
   update ticket_inventory
   set
     reserved_count = reserved_count - p_qty,
-    version = version + 1,
-    updated_at = now()
+    version = version + 1
   where event_id = p_event_id
     and ticket_type_id = p_ticket_type_id
     and p_qty > 0
@@ -273,6 +308,7 @@ create or replace function sync_inventory_capacity(
 )
 returns ticket_inventory
 language plpgsql
+set search_path = pg_catalog, public
 as $$
 declare
   result ticket_inventory;
@@ -292,7 +328,15 @@ begin
         then excluded.capacity
       else ticket_inventory.capacity
     end,
-    updated_at = now()
+    version = case
+      when ticket_inventory.sold_count + ticket_inventory.reserved_count = 0
+           and ticket_inventory.capacity is distinct from excluded.capacity
+        then ticket_inventory.version + 1
+      when excluded.capacity >= ticket_inventory.sold_count + ticket_inventory.reserved_count
+           and ticket_inventory.capacity is distinct from excluded.capacity
+        then ticket_inventory.version + 1
+      else ticket_inventory.version
+    end
   returning * into result;
 
   -- App layer should error when requested capacity was rejected (below sold+reserved).
@@ -319,12 +363,12 @@ create or replace function refund_inventory(
 )
 returns setof ticket_inventory
 language sql
+set search_path = pg_catalog, public
 as $$
   update ticket_inventory
   set
     sold_count = sold_count - p_qty,
-    version = version + 1,
-    updated_at = now()
+    version = version + 1
   where event_id = p_event_id
     and ticket_type_id = p_ticket_type_id
     and p_qty > 0
@@ -333,8 +377,9 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------------------
--- RLS: enable + deny-all for anon/authenticated (Appendix D)
+-- RLS: enable + force + deny-all for anon/authenticated (Appendix D + hardening)
 -- service_role bypasses RLS — use only from Next.js server after app authz.
+-- FORCE ensures table owners also cannot bypass RLS (defense in depth).
 -- ---------------------------------------------------------------------------
 alter table ticket_inventory enable row level security;
 alter table orders enable row level security;
@@ -343,11 +388,35 @@ alter table stripe_webhook_events enable row level security;
 alter table email_outbox enable row level security;
 alter table admin_audit_log enable row level security;
 
+alter table ticket_inventory force row level security;
+alter table orders force row level security;
+alter table form_submissions force row level security;
+alter table stripe_webhook_events force row level security;
+alter table email_outbox force row level security;
+alter table admin_audit_log force row level security;
+
 -- Intentionally no policies for anon / authenticated.
 -- Default deny for non-service roles.
 --
+-- Privilege hardening: strip table + RPC access from PostgREST roles so REST
+-- fails with permission errors rather than empty RLS results for confused ops.
+revoke all on table ticket_inventory from public, anon, authenticated;
+revoke all on table orders from public, anon, authenticated;
+revoke all on table form_submissions from public, anon, authenticated;
+revoke all on table stripe_webhook_events from public, anon, authenticated;
+revoke all on table email_outbox from public, anon, authenticated;
+revoke all on table admin_audit_log from public, anon, authenticated;
+
+revoke execute on function reserve_inventory(text, text, int) from public, anon, authenticated;
+revoke execute on function commit_inventory(text, text, int) from public, anon, authenticated;
+revoke execute on function release_inventory(text, text, int) from public, anon, authenticated;
+revoke execute on function refund_inventory(text, text, int) from public, anon, authenticated;
+revoke execute on function sync_inventory_capacity(text, text, int) from public, anon, authenticated;
+
+-- service_role / postgres retain full access via default Supabase grants + RLS bypass.
+--
 -- Verification (manual):
---   set role anon; select * from orders;  -- 0 rows / permission denied
+--   set role anon; select * from orders;  -- permission denied
 --   service_role key via API: full access
 
 -- ---------------------------------------------------------------------------
