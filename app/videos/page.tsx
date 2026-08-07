@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { EmptyState } from "@/components/EmptyState";
 import { Container } from "@/components/ui/Container";
 import { getSiteSettings } from "@/lib/sanity/queries";
 import { buildPageMetadata } from "@/lib/seo";
@@ -16,13 +17,26 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function VideosPage() {
+  // Full CMS video list ships with media PR wiring; empty state is intentional.
+  const videos: unknown[] = [];
+
   return (
     <Container className="py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-fg">Videos</h1>
-      <p className="mt-4 max-w-prose text-muted">
-        Promo and show videos (YouTube/Vimeo embeds) will appear here. Stub for
-        primary navigation.
-      </p>
+      <header className="max-w-2xl">
+        <h1 className="text-3xl font-bold tracking-tight text-fg">Videos</h1>
+        <p className="mt-4 max-w-prose text-muted">
+          Promo and show clips (YouTube and Vimeo).
+        </p>
+      </header>
+
+      {videos.length === 0 ? (
+        <EmptyState
+          title="No videos yet"
+          description="Embeds will show up here when the team publishes video entries in Sanity. Check events for live show dates."
+          actionHref="/events"
+          actionLabel="Browse events"
+        />
+      ) : null}
     </Container>
   );
 }

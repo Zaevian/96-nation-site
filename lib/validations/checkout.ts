@@ -35,8 +35,17 @@ export const checkoutBodySchema = z.object({
   marketingOptIn: z.boolean().optional().default(false),
   /** Client UUID v4 — unique on orders for double-submit safety. */
   idempotencyKey: z.string().uuid("idempotencyKey must be a UUID"),
-  /** Optional legal acknowledgment (stub for PR 11). */
-  acceptedLegal: z.boolean().optional(),
+  /**
+   * Required acknowledgment of Terms + Privacy before checkout/RSVP.
+   * Must be literally `true` (checkbox checked).
+   */
+  acceptedLegal: z
+    .boolean({
+      error: "You must accept the Terms of Use and Privacy Policy",
+    })
+    .refine((v) => v === true, {
+      message: "You must accept the Terms of Use and Privacy Policy",
+    }),
 });
 
 export type CheckoutBody = z.infer<typeof checkoutBodySchema>;

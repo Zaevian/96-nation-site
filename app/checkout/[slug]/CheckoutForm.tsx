@@ -102,6 +102,13 @@ export function CheckoutForm({
         return;
       }
 
+      if (!acceptedLegal) {
+        setError(
+          "Please accept the Terms of Use and Privacy Policy to continue.",
+        );
+        return;
+      }
+
       setSubmitting(true);
       // Capture key for this attempt; may rotate after failure for next submit.
       const keyForAttempt = idempotencyKey;
@@ -344,28 +351,37 @@ export function CheckoutForm({
             type="checkbox"
             checked={acceptedLegal}
             onChange={(e) => setAcceptedLegal(e.target.checked)}
+            required
+            aria-required="true"
             className="mt-1 h-5 w-5 rounded border-border"
+            aria-describedby="checkout-legal-hint"
           />
-          <label htmlFor="checkout-legal" className="text-sm text-muted">
-            I agree to the{" "}
-            <a
-              href="/terms"
-              className="text-accent underline underline-offset-2"
-            >
-              Terms
-            </a>{" "}
-            and{" "}
-            <a
-              href="/privacy"
-              className="text-accent underline underline-offset-2"
-            >
-              Privacy Policy
-            </a>
-            .{" "}
-            <span className="text-xs">
-              (Optional stub — required in a later release.)
-            </span>
-          </label>
+          <div>
+            <label htmlFor="checkout-legal" className="text-sm text-muted">
+              I agree to the{" "}
+              <a
+                href="/terms"
+                className="text-accent underline underline-offset-2"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Terms of Use
+              </a>{" "}
+              and{" "}
+              <a
+                href="/privacy"
+                className="text-accent underline underline-offset-2"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+              <span className="text-fg"> (required)</span>.
+            </label>
+            <p id="checkout-legal-hint" className="mt-1 text-xs text-muted">
+              You must accept before paying or confirming an RSVP.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-start gap-3">
@@ -392,7 +408,12 @@ export function CheckoutForm({
         </p>
       ) : null}
 
-      <Button type="submit" disabled={submitting} className="w-full sm:w-auto">
+      <Button
+        type="submit"
+        disabled={submitting || !acceptedLegal}
+        className="w-full sm:w-auto"
+        aria-disabled={submitting || !acceptedLegal}
+      >
         {submitting
           ? isFree
             ? "Confirming…"

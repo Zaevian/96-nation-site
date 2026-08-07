@@ -1,6 +1,11 @@
 import { cache } from "react";
 
 import { sanityFetch } from "./client";
+import {
+  eventTag,
+  pageTag,
+  SANITY_TAGS,
+} from "./tags";
 import type {
   CmsPage,
   EventDetail,
@@ -107,35 +112,49 @@ const eventByShortCodeQuery = `*[_type == "event" && shortCode == $code && statu
 /** Singleton site settings (request-deduped via React cache). */
 export const getSiteSettings = cache(
   async (): Promise<SiteSettings | null> => {
-    return sanityFetch<SiteSettings>(siteSettingsQuery);
+    return sanityFetch<SiteSettings>(siteSettingsQuery, {}, {
+      tags: [SANITY_TAGS.siteSettings],
+    });
   },
 );
 
 /** Static CMS page by slug (request-deduped). */
 export const getPageBySlug = cache(
   async (slug: string): Promise<CmsPage | null> => {
-    return sanityFetch<CmsPage>(pageBySlugQuery, { slug });
+    return sanityFetch<CmsPage>(pageBySlugQuery, { slug }, {
+      tags: [SANITY_TAGS.pages, pageTag(slug)],
+    });
   },
 );
 
 /** Upcoming published events for the home page featured strip. */
 export const getFeaturedEvents = cache(
   async (): Promise<FeaturedEvent[]> => {
-    const rows = await sanityFetch<FeaturedEvent[]>(featuredEventsQuery);
+    const rows = await sanityFetch<FeaturedEvent[]>(
+      featuredEventsQuery,
+      {},
+      { tags: [SANITY_TAGS.events] },
+    );
     return rows ?? [];
   },
 );
 
 /** Published + cancelled events for the list page (drafts excluded). */
 export const getEvents = cache(async (): Promise<EventListItem[]> => {
-  const rows = await sanityFetch<EventListItem[]>(eventsListQuery);
+  const rows = await sanityFetch<EventListItem[]>(
+    eventsListQuery,
+    {},
+    { tags: [SANITY_TAGS.events] },
+  );
   return rows ?? [];
 });
 
 /** Published/cancelled event by slug (full detail). */
 export const getEventBySlug = cache(
   async (slug: string): Promise<EventDetail | null> => {
-    return sanityFetch<EventDetail>(eventBySlugQuery, { slug });
+    return sanityFetch<EventDetail>(eventBySlugQuery, { slug }, {
+      tags: [SANITY_TAGS.events, eventTag(slug)],
+    });
   },
 );
 
@@ -146,6 +165,10 @@ export const getEventBySlug = cache(
 export const getEventByShortCode = cache(
   async (code: string): Promise<EventShortLink | null> => {
     if (!code) return null;
-    return sanityFetch<EventShortLink>(eventByShortCodeQuery, { code });
+    return sanityFetch<EventShortLink>(
+      eventByShortCodeQuery,
+      { code },
+      { tags: [SANITY_TAGS.events] },
+    );
   },
 );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { EmptyState } from "@/components/EmptyState";
 import { EventCard } from "@/components/EventCard";
 import { Container } from "@/components/ui/Container";
 import { isEventUpcoming } from "@/lib/events";
@@ -48,10 +49,12 @@ export default async function EventsPage() {
       </header>
 
       {events.length === 0 ? (
-        <p className="mt-10 max-w-prose text-muted" role="status">
-          No published events yet. Check back soon — new shows land here once
-          they go live in the CMS.
-        </p>
+        <EmptyState
+          title="No published events yet"
+          description="New shows land here once they go live in the CMS. Check back soon, or get in touch if you’re looking for a date."
+          actionHref="/contact"
+          actionLabel="Contact us"
+        />
       ) : (
         <>
           <section aria-labelledby="upcoming-events-heading" className="mt-10">
@@ -68,12 +71,17 @@ export default async function EventsPage() {
                 ))}
               </ul>
             ) : (
-              <p className="max-w-prose text-muted" role="status">
-                No upcoming events right now.
-                {past.length > 0 || cancelled.length > 0
-                  ? " Past and cancelled listings are below if available."
-                  : " Check back soon."}
-              </p>
+              <EmptyState
+                className="mt-0"
+                title="No upcoming events right now"
+                description={
+                  past.length > 0 || cancelled.length > 0
+                    ? "Past and cancelled listings are below if available. Follow us or check back for the next show."
+                    : "Check back soon — new dates will appear here when published."
+                }
+                actionHref="/"
+                actionLabel="Back home"
+              />
             )}
           </section>
 

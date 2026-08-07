@@ -44,8 +44,14 @@ test.describe("accessibility smoke", () => {
     await expectNoSeriousAxeViolations(page);
   });
 
-  test("privacy stub has no serious axe violations", async ({ page }) => {
+  test("privacy page has no serious axe violations", async ({ page }) => {
     await page.goto("/privacy");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectNoSeriousAxeViolations(page);
+  });
+
+  test("terms page has no serious axe violations", async ({ page }) => {
+    await page.goto("/terms");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expectNoSeriousAxeViolations(page);
   });

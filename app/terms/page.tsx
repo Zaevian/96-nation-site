@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CmsPageView } from "@/components/CmsPageView";
+import { TermsOfUseContent } from "@/components/legal/TermsOfUseContent";
 import { getPageBySlug, getSiteSettings } from "@/lib/sanity/queries";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -10,10 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
     getSiteSettings(),
   ]);
   return buildPageMetadata({
-    title: page?.title || "Terms",
+    title: page?.title || "Terms of Use",
     description:
       page?.seo?.metaDescription ||
-      "Terms of use for 96 Nation ticketing and community services.",
+      "Terms of use for 96 Nation ticketing, RSVPs, refunds, and community services.",
     path: "/terms",
     seo: page?.seo,
     settings,
@@ -22,11 +23,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function TermsPage() {
   const page = await getPageBySlug("terms");
+  const hasCmsBody = Boolean(page?.body && page.body.length > 0);
+
   return (
     <CmsPageView
       page={page}
-      fallbackTitle="Terms"
-      fallbackDescription="Terms of use placeholder. Full terms will ship with the handoff package, or can be authored as a Page with slug “terms” in Sanity Studio."
-    />
+      fallbackTitle="Terms of Use"
+      fallbackDescription=""
+      forceFallback={!hasCmsBody}
+    >
+      {!hasCmsBody ? <TermsOfUseContent /> : null}
+    </CmsPageView>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { EmptyState } from "@/components/EmptyState";
 import { Container } from "@/components/ui/Container";
 import { getSiteSettings } from "@/lib/sanity/queries";
 import { buildPageMetadata } from "@/lib/seo";
@@ -15,13 +16,26 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function GalleriesPage() {
+  // Full CMS gallery list ships with media PR wiring; empty state is intentional.
+  const galleries: unknown[] = [];
+
   return (
     <Container className="py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-fg">Galleries</h1>
-      <p className="mt-4 max-w-prose text-muted">
-        Photo galleries will be loaded from the CMS in a later PR. Stub for
-        primary navigation.
-      </p>
+      <header className="max-w-2xl">
+        <h1 className="text-3xl font-bold tracking-tight text-fg">Galleries</h1>
+        <p className="mt-4 max-w-prose text-muted">
+          Photos from 96 Nation shows and community nights.
+        </p>
+      </header>
+
+      {galleries.length === 0 ? (
+        <EmptyState
+          title="Galleries coming soon"
+          description="Photo sets will appear here once published in the CMS. In the meantime, browse events or watch promo videos."
+          actionHref="/events"
+          actionLabel="Browse events"
+        />
+      ) : null}
     </Container>
   );
 }
