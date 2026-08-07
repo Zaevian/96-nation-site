@@ -42,14 +42,33 @@ Before production cutover, complete the foundations checklist in [`DESIGN.md`](.
 
 Custom domain DNS is **not** a merge blocker for early PRs.
 
+## Sanity Studio
+
+Embedded CMS at **[http://localhost:3000/studio](http://localhost:3000/studio)** when env is set:
+
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=...
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2025-01-01
+# optional:
+SANITY_API_READ_TOKEN=
+```
+
+Without a project id, `/studio` shows setup instructions and the production build still succeeds. Schemas, desk structure, seed steps: [`docs/SANITY.md`](./docs/SANITY.md).
+
 ## Project layout
 
 ```text
 app/                 # Next.js App Router (home + route stubs)
   layout.tsx         # Root layout + SiteShell
   globals.css        # Tailwind v4 + AA placeholder tokens
+  studio/[[...tool]] # Embedded Sanity Studio
 components/          # Header, Footer, SkipLink, SiteShell, ui/*
 lib/nav.ts           # Primary + footer nav config
+lib/sanity/          # client, env, image helpers
+sanity/              # schemaTypes, desk structure
+sanity.config.ts
+docs/SANITY.md       # seed + publish checklist
 tests/a11y.spec.ts   # Playwright axe smoke
 public/
 postcss.config.mjs   # @tailwindcss/postcss
@@ -66,7 +85,7 @@ Placeholder AA-safe tokens live in `app/globals.css` (bg `#0a0a0a`, fg `#f5f5f5`
 - Mobile hamburger nav; visible `:focus-visible`; `prefers-reduced-motion`
 - CI: lint + build + axe smoke (`.github/workflows/ci.yml`)
 
-Product routes (checkout, admin, studio, CMS content) land in later PRs per the design rollout.
+Marketing routes, checkout, and `/admin` land in later PRs per the design rollout.
 
 ## License / ownership
 
