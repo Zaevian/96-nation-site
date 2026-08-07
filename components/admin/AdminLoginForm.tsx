@@ -35,23 +35,32 @@ export function AdminLoginForm({ nextPath }: Props) {
         : "/admin/forms";
     const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
 
+    // shouldCreateUser: false — admins must already exist in Supabase Auth
+    // (invite via dashboard or create once). Prevents open user-table pollution.
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
         emailRedirectTo: redirectTo,
-        shouldCreateUser: true,
+        shouldCreateUser: false,
       },
     });
 
     if (error) {
       setStatus("error");
-      setMessage(error.message);
+      // Avoid leaking whether an email exists when Supabase returns user-not-found style errors
+      const generic =
+        /signups not allowed|user not found|unable to validate/i.test(
+          error.message,
+        )
+          ? "If this email is an admin account, check your inbox. Otherwise contact the owner to be invited."
+          : error.message;
+      setMessage(generic);
       return;
     }
 
     setStatus("sent");
     setMessage(
-      `Check your inbox for a magic link. After signing in you’ll land on ${nextPath}.`,
+      `If this email is registered as an admin, a magic link is on the way. After signing in you’ll land on ${safeNext}.`,
     );
   }
 

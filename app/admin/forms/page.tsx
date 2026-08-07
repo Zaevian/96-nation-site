@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Container } from "@/components/ui/Container";
+import { isAdminEmail } from "@/lib/admin";
 import {
   canCreateServiceClient,
+  createAuthServerClient,
   createServiceClient,
 } from "@/lib/supabase/server";
 import type { FormType } from "@/lib/validations/forms";
@@ -39,7 +42,31 @@ function payloadSummary(payload: Record<string, unknown>): string {
   return `${name} · ${email}`;
 }
 
+/** Page-level authz (defense in depth beyond middleware). */
+async function requireAdmin() {
+  const auth = await createAuthServerClient();
+  if (!auth) {
+    redirect("/admin/login?error=auth_not_configured");
+  }
+
+  const {
+    data: { user },
+  } = await auth.auth.getUser();
+
+  if (!user?.email) {
+    redirect("/admin/login");
+  }
+
+  if (!isAdminEmail(user.email)) {
+    redirect("/admin/login?error=not_allowed");
+  }
+
+  return user;
+}
+
 export default async function AdminFormsPage() {
+  await requireAdmin();
+
   let rows: SubmissionRow[] = [];
   let loadError: string | null = null;
   const configured = canCreateServiceClient();
@@ -87,7 +114,10 @@ export default async function AdminFormsPage() {
       ) : null}
 
       {loadError ? (
-        <p className="rounded-md border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger" role="alert">
+        <p
+          className="rounded-md border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
+          role="alert"
+        >
           Could not load submissions: {loadError}
         </p>
       ) : null}

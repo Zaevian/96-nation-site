@@ -20,6 +20,16 @@ type RouteContext = {
   params: Promise<{ type: string }>;
 };
 
+/**
+ * Soft-persist (200 without DB) is only for local/demo.
+ * Production always 503 when service role is missing so misconfig is visible.
+ * Opt-in anywhere with ALLOW_UNPERSISTED_FORMS=1 (never set in prod).
+ */
+function allowUnpersistedForms(): boolean {
+  if (process.env.ALLOW_UNPERSISTED_FORMS === "1") return true;
+  return process.env.NODE_ENV !== "production";
+}
+
 export async function POST(request: Request, context: RouteContext) {
   const { type: rawType } = await context.params;
 
@@ -78,6 +88,20 @@ export async function POST(request: Request, context: RouteContext) {
     );
   }
 
+  // Honeypot early: non-empty website → silent success before full Zod
+  // (bots that also send invalid fields still get 200; rate limit still applies)
+  if (
+    json &&
+    typeof json === "object" &&
+    !Array.isArray(json) &&
+    "website" in json
+  ) {
+    const website = (json as { website?: unknown }).website;
+    if (typeof website === "string" && website.trim().length > 0) {
+      return NextResponse.json({ ok: true });
+    }
+  }
+
   const schema = schemaForType(formType);
   const parsed = schema.safeParse(json);
 
@@ -95,12 +119,6 @@ export async function POST(request: Request, context: RouteContext) {
     );
   }
 
-  // Honeypot: silent success, no store / no email
-  const website = parsed.data.website;
-  if (typeof website === "string" && website.trim().length > 0) {
-    return NextResponse.json({ ok: true });
-  }
-
   const payload = payloadForStorage(
     formType,
     parsed.data as unknown as Record<string, unknown>,
@@ -115,15 +133,27 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   if (!canCreateServiceClient()) {
-    console.warn(
-      "[forms] Supabase service role not configured; accepting without persist",
+    if (allowUnpersistedForms()) {
+      console.warn(
+        "[forms] Supabase service role not configured; accepting without persist (non-production)",
+      );
+      return NextResponse.json({
+        ok: true,
+        id: null,
+        persisted: false,
+      });
+    }
+
+    console.error(
+      "[forms] Supabase service role not configured in production; refusing submission",
     );
-    // Graceful for local/demo without Supabase: pretend success so UI works
-    return NextResponse.json({
-      ok: true,
-      id: null,
-      persisted: false,
-    });
+    return NextResponse.json(
+      {
+        error: "Form storage is temporarily unavailable. Please try again later.",
+        code: "SERVER",
+      },
+      { status: 503 },
+    );
   }
 
   let submissionId: string;

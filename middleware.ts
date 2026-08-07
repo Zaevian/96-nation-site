@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const redirectToLogin = (error?: string) => {
+  const buildLoginRedirect = (error?: string) => {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.search = "";
@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   };
 
   if (!url || !anonKey) {
-    return redirectToLogin("auth_not_configured");
+    return buildLoginRedirect("auth_not_configured");
   }
 
   let response = NextResponse.next({
@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user?.email) {
-    return redirectToLogin();
+    return buildLoginRedirect();
   }
 
   const allowlist = (process.env.ADMIN_EMAILS ?? "")
@@ -72,12 +72,26 @@ export async function middleware(request: NextRequest) {
     .filter(Boolean);
 
   if (allowlist.length === 0) {
-    return redirectToLogin("allowlist_empty");
+    return buildLoginRedirect("allowlist_empty");
   }
 
   if (!allowlist.includes(user.email.toLowerCase())) {
-    // Sign out is client-side; just block
-    return redirectToLogin("not_allowed");
+    // Sign out so disallowed sessions do not linger authenticated
+    const denyResponse = buildLoginRedirect("not_allowed");
+    const denyClient = createServerClient(url, anonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            denyResponse.cookies.set(name, value, options);
+          });
+        },
+      },
+    });
+    await denyClient.auth.signOut();
+    return denyResponse;
   }
 
   return response;
