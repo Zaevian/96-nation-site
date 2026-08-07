@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
-import { Container } from "@/components/ui/Container";
 
-export const metadata: Metadata = {
-  title: "Galleries",
-};
+import { Container } from "@/components/ui/Container";
+import { getSiteSettings } from "@/lib/sanity/queries";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return buildPageMetadata({
+    title: "Galleries",
+    description: "Photo galleries from 96 Nation shows and community events.",
+    path: "/galleries",
+    settings,
+  });
+}
 
 export default function GalleriesPage() {
   return (

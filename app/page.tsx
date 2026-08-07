@@ -12,6 +12,7 @@ import {
 import { urlForImage } from "@/lib/sanity/image";
 import { buildPageMetadata } from "@/lib/seo";
 import type { FeaturedEvent } from "@/lib/sanity/types";
+import { sanitizeHrefOrFallback } from "@/lib/url";
 
 const FALLBACK_HERO = {
   title: "96 Nation — tickets, talent, and Genesis",
@@ -151,8 +152,10 @@ export default async function HomePage() {
     settings?.homeHeroSubtitle?.trim() || FALLBACK_HERO.subtitle;
   const ctaLabel =
     settings?.homeHeroCtaLabel?.trim() || FALLBACK_HERO.ctaLabel;
-  const ctaHref =
-    settings?.homeHeroCtaHref?.trim() || FALLBACK_HERO.ctaHref;
+  const ctaHref = sanitizeHrefOrFallback(
+    settings?.homeHeroCtaHref,
+    FALLBACK_HERO.ctaHref,
+  );
   const kicker = settings?.tagline?.trim() || FALLBACK_HERO.kicker;
   const heroImageUrl = settings?.homeHeroImage
     ? urlForImage(settings.homeHeroImage)?.width(1400).height(800).url()

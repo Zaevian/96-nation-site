@@ -8,6 +8,7 @@ import Link from "next/link";
 
 import { urlForImage } from "@/lib/sanity/image";
 import type { SanityImage } from "@/lib/sanity/types";
+import { sanitizeHref } from "@/lib/url";
 
 type PortableTextProps = {
   value?: PortableTextBlock[] | null;
@@ -57,13 +58,18 @@ const components: PortableTextComponents = {
     ),
     em: ({ children }) => <em>{children}</em>,
     link: ({ children, value }) => {
-      const href = (value?.href as string | undefined) || "#";
+      const href = sanitizeHref(value?.href as string | undefined);
       const openInNewTab = Boolean(value?.openInNewTab);
+
+      // Unsafe / empty href: render children as plain text (no anchor)
+      if (!href) {
+        return <span>{children}</span>;
+      }
+
       const isExternal =
-        href.startsWith("http://") ||
-        href.startsWith("https://") ||
-        href.startsWith("mailto:") ||
-        href.startsWith("tel:");
+        /^https?:/i.test(href) ||
+        href.toLowerCase().startsWith("mailto:") ||
+        href.toLowerCase().startsWith("tel:");
 
       if (isExternal) {
         return (
@@ -95,7 +101,13 @@ const components: PortableTextComponents = {
       if (!image) return null;
       const src = urlForImage(image)?.width(1200).url();
       if (!src) return null;
-      const alt = image.alt?.trim() || "";
+
+      // Prefer CMS alt; fall back to caption. Skip image if neither (a11y).
+      const alt = image.alt?.trim() || image.caption?.trim() || "";
+      if (!alt) {
+        return null;
+      }
+
       return (
         <figure className="my-6">
           <div className="relative aspect-[16/10] w-full max-w-3xl overflow-hidden rounded-lg border border-border bg-surface">
@@ -120,6 +132,7 @@ const components: PortableTextComponents = {
 
 /**
  * Allowlisted portable text renderer (blocks, lists, links, images with alt).
+ * Link hrefs are re-validated at render time (http/https/mailto/tel + relative `/…`).
  * Renders nothing when value is empty so callers can show fallbacks.
  */
 export function PortableText({ value, className = "" }: PortableTextProps) {

@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { sanityFetch } from "./client";
 import type { CmsPage, FeaturedEvent, SiteSettings } from "./types";
 
@@ -43,18 +45,41 @@ const featuredEventsQuery = `*[_type == "event" && status == "published" && defi
     heroImage
   }`;
 
-/** Singleton site settings, or null when unconfigured / empty. */
-export async function getSiteSettings(): Promise<SiteSettings | null> {
-  return sanityFetch<SiteSettings>(siteSettingsQuery);
-}
+const eventBySlugQuery = `*[_type == "event" && slug.current == $slug && status in ["published", "cancelled"]][0]{
+  _id,
+  title,
+  "slug": slug.current,
+  summary,
+  startAt,
+  status,
+  heroImage
+}`;
 
-/** Static CMS page by slug (`privacy`, `terms`, `about`, `genesis`, …). */
-export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
-  return sanityFetch<CmsPage>(pageBySlugQuery, { slug });
-}
+/** Singleton site settings (request-deduped via React cache). */
+export const getSiteSettings = cache(
+  async (): Promise<SiteSettings | null> => {
+    return sanityFetch<SiteSettings>(siteSettingsQuery);
+  },
+);
+
+/** Static CMS page by slug (request-deduped). */
+export const getPageBySlug = cache(
+  async (slug: string): Promise<CmsPage | null> => {
+    return sanityFetch<CmsPage>(pageBySlugQuery, { slug });
+  },
+);
 
 /** Upcoming published events for the home page featured strip. */
-export async function getFeaturedEvents(): Promise<FeaturedEvent[]> {
-  const rows = await sanityFetch<FeaturedEvent[]>(featuredEventsQuery);
-  return rows ?? [];
-}
+export const getFeaturedEvents = cache(
+  async (): Promise<FeaturedEvent[]> => {
+    const rows = await sanityFetch<FeaturedEvent[]>(featuredEventsQuery);
+    return rows ?? [];
+  },
+);
+
+/** Published/cancelled event by slug (stub detail until full PR 5). */
+export const getEventBySlug = cache(
+  async (slug: string): Promise<FeaturedEvent | null> => {
+    return sanityFetch<FeaturedEvent>(eventBySlugQuery, { slug });
+  },
+);

@@ -100,6 +100,15 @@ export const siteSettings = defineType({
       type: "string",
       group: "home",
       initialValue: "/events",
+      description: "Internal path (e.g. /events) or http(s) URL.",
+      validation: (Rule) =>
+        Rule.required().custom((value) => {
+          if (!value || typeof value !== "string") return "Required";
+          const href = value.trim();
+          if (/^https?:\/\//i.test(href)) return true;
+          if (href.startsWith("/") && !href.startsWith("//")) return true;
+          return "Use a path starting with / or an http(s) URL";
+        }),
     }),
 
     // About

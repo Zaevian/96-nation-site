@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
-import { Container } from "@/components/ui/Container";
 
-export const metadata: Metadata = {
-  title: "Videos",
-};
+import { Container } from "@/components/ui/Container";
+import { getSiteSettings } from "@/lib/sanity/queries";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return buildPageMetadata({
+    title: "Videos",
+    description:
+      "Promo and show videos from 96 Nation (YouTube and Vimeo embeds).",
+    path: "/videos",
+    settings,
+  });
+}
 
 export default function VideosPage() {
   return (

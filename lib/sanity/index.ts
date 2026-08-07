@@ -10,6 +10,7 @@ export {
 export { getClient, getServerClient, sanityFetch } from "./client";
 export { urlForImage } from "./image";
 export {
+  getEventBySlug,
   getFeaturedEvents,
   getPageBySlug,
   getSiteSettings,
