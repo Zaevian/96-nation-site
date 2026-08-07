@@ -41,33 +41,30 @@ const pageBySlugQuery = `*[_type == "page" && slug.current == $slug][0]{
   }
 }`;
 
-const featuredEventsQuery = `*[_type == "event" && status == "published" && defined(slug.current)]
-  | order(startAt asc)[0...4]{
-    _id,
-    title,
-    "slug": slug.current,
-    summary,
-    startAt,
-    status,
-    heroImage,
-    venue{ name, city },
-    ticketTypes[]{ id, name, priceCents, capacity }
-  }`;
+/** Card projection shared by list + featured (timezone required for correct local times). */
+const eventCardProjection = `{
+  _id,
+  title,
+  "slug": slug.current,
+  summary,
+  startAt,
+  endAt,
+  timezone,
+  status,
+  heroImage,
+  venue{ name, city },
+  ticketTypes[]{ id, name, priceCents, capacity }
+}`;
 
+/** Upcoming published only (still ongoing if endAt is in the future). */
+const featuredEventsQuery = `*[_type == "event" && status == "published" && defined(slug.current) && coalesce(endAt, startAt) >= now()]
+  | order(startAt asc)[0...4]
+  ${eventCardProjection}`;
+
+/** All public events; page splits upcoming / past / cancelled. */
 const eventsListQuery = `*[_type == "event" && status in ["published", "cancelled"] && defined(slug.current)]
-  | order(startAt asc){
-    _id,
-    title,
-    "slug": slug.current,
-    summary,
-    startAt,
-    endAt,
-    timezone,
-    status,
-    heroImage,
-    venue{ name, city },
-    ticketTypes[]{ id, name, priceCents, capacity }
-  }`;
+  | order(startAt asc)
+  ${eventCardProjection}`;
 
 const eventBySlugQuery = `*[_type == "event" && slug.current == $slug && status in ["published", "cancelled"]][0]{
   _id,

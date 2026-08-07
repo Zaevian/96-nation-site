@@ -99,11 +99,27 @@ export function lowestPriceCents(
   return min;
 }
 
-/** Checkout stub URL until full checkout PR. */
+/**
+ * Checkout stub URL until full checkout PR.
+ * Aligns with DESIGN: `/checkout/{slug}?type={ticketTypeId}`.
+ */
 export function checkoutHref(eventSlug: string, ticketTypeId: string): string {
-  const params = new URLSearchParams({
-    event: eventSlug,
-    ticketType: ticketTypeId,
-  });
-  return `/checkout?${params.toString()}`;
+  const slug = encodeURIComponent(eventSlug);
+  const params = new URLSearchParams({ type: ticketTypeId });
+  return `/checkout/${slug}?${params.toString()}`;
+}
+
+/**
+ * True while the event has not fully ended.
+ * Uses endAt when set, otherwise startAt (so past one-shot events drop out of “upcoming”).
+ */
+export function isEventUpcoming(
+  event: Pick<EventListItem, "startAt" | "endAt">,
+  now: Date = new Date(),
+): boolean {
+  const endIso = event.endAt || event.startAt;
+  if (!endIso) return true;
+  const end = new Date(endIso).getTime();
+  if (Number.isNaN(end)) return true;
+  return end >= now.getTime();
 }

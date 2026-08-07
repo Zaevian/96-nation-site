@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { EventCard } from "@/components/EventCard";
 import { Container } from "@/components/ui/Container";
+import { isEventUpcoming } from "@/lib/events";
 import { getEvents, getSiteSettings } from "@/lib/sanity/queries";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -18,7 +19,22 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function EventsPage() {
   const events = await getEvents();
-  const upcoming = events.filter((e) => e.status !== "cancelled");
+  const now = new Date();
+  const active = events.filter((e) => e.status !== "cancelled");
+  const upcoming = active
+    .filter((e) => isEventUpcoming(e, now))
+    .sort((a, b) => {
+      const ta = a.startAt ? new Date(a.startAt).getTime() : 0;
+      const tb = b.startAt ? new Date(b.startAt).getTime() : 0;
+      return ta - tb;
+    });
+  const past = active
+    .filter((e) => !isEventUpcoming(e, now))
+    .sort((a, b) => {
+      const ta = a.startAt ? new Date(a.startAt).getTime() : 0;
+      const tb = b.startAt ? new Date(b.startAt).getTime() : 0;
+      return tb - ta;
+    });
   const cancelled = events.filter((e) => e.status === "cancelled");
 
   return (
@@ -38,18 +54,51 @@ export default async function EventsPage() {
         </p>
       ) : (
         <>
-          {upcoming.length > 0 ? (
-            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {upcoming.map((event) => (
-                <EventCard key={event._id} event={event} />
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-10 max-w-prose text-muted" role="status">
-              No upcoming events right now. Cancelled listings are below if
-              available.
-            </p>
-          )}
+          <section aria-labelledby="upcoming-events-heading" className="mt-10">
+            <h2
+              id="upcoming-events-heading"
+              className="sr-only"
+            >
+              Upcoming
+            </h2>
+            {upcoming.length > 0 ? (
+              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {upcoming.map((event) => (
+                  <EventCard key={event._id} event={event} />
+                ))}
+              </ul>
+            ) : (
+              <p className="max-w-prose text-muted" role="status">
+                No upcoming events right now.
+                {past.length > 0 || cancelled.length > 0
+                  ? " Past and cancelled listings are below if available."
+                  : " Check back soon."}
+              </p>
+            )}
+          </section>
+
+          {past.length > 0 ? (
+            <section
+              aria-labelledby="past-events-heading"
+              className="mt-14"
+            >
+              <h2
+                id="past-events-heading"
+                className="text-lg font-semibold tracking-tight text-fg"
+              >
+                Past
+              </h2>
+              <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {past.map((event) => (
+                  <EventCard
+                    key={event._id}
+                    event={event}
+                    headingLevel={3}
+                  />
+                ))}
+              </ul>
+            </section>
+          ) : null}
 
           {cancelled.length > 0 ? (
             <section

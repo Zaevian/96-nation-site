@@ -257,11 +257,7 @@ export default async function EventDetailPage({
                       </ButtonLink>
                     ) : (
                       <span className="inline-flex min-h-11 items-center justify-center rounded-md border border-border px-4 py-2 text-sm font-semibold text-muted">
-                        {typeSoldOut
-                          ? "Sold out"
-                          : cancelled
-                            ? "Unavailable"
-                            : "Not on sale"}
+                        {typeSoldOut ? "Sold out" : "Not on sale"}
                       </span>
                     )}
                   </li>
