@@ -1,17 +1,11 @@
 import { PlayIcon } from "@sanity/icons";
 import { defineField, defineType } from "sanity";
 
-function detectProvider(
-  url: string | undefined,
-): "youtube" | "vimeo" | "unknown" {
-  if (!url) return "unknown";
-  if (/youtube\.com|youtu\.be/i.test(url)) return "youtube";
-  if (/vimeo\.com/i.test(url)) return "vimeo";
-  return "unknown";
-}
+import { detectVideoProvider } from "../lib/videoProvider";
 
 /**
  * Video = external YouTube/Vimeo URL by default (no large CMS uploads).
+ * Prefer deriving provider from URL at read time; stored provider must match host.
  */
 export const video = defineType({
   name: "video",
@@ -52,7 +46,7 @@ export const video = defineType({
           .uri({ scheme: ["http", "https"] })
           .custom((url) => {
             if (!url) return "Video URL is required";
-            const provider = detectProvider(url);
+            const provider = detectVideoProvider(url);
             if (provider === "unknown") {
               return "Use a YouTube or Vimeo URL";
             }
@@ -71,16 +65,21 @@ export const video = defineType({
         layout: "radio",
       },
       initialValue: "youtube",
-      description: "Usually auto-detected from the URL; adjust if needed.",
+      description:
+        "Must match the Video URL host. Frontend should prefer detecting provider from externalUrl if unsure.",
       validation: (Rule) =>
-        Rule.custom((value, context) => {
+        Rule.required().custom((value, context) => {
           const parent = context.parent as { externalUrl?: string } | undefined;
-          const detected = detectProvider(parent?.externalUrl);
-          if (detected !== "unknown" && value && value !== detected) {
-            return `URL looks like ${detected}; provider is set to ${value}`;
+          const detected = detectVideoProvider(parent?.externalUrl);
+          if (detected === "unknown") {
+            // URL field will flag invalid hosts; avoid double-error noise
+            return true;
+          }
+          if (value !== detected) {
+            return `Provider must be “${detected}” for this URL (got “${value}”)`;
           }
           return true;
-        }).warning(),
+        }),
     }),
     defineField({
       name: "poster",
@@ -110,10 +109,10 @@ export const video = defineType({
       media: "poster",
     },
     prepare({ title, provider, url, media }) {
-      const detected = detectProvider(url);
+      const detected = detectVideoProvider(url);
       return {
         title: title || "Untitled video",
-        subtitle: `${provider || detected} · ${url || "no url"}`,
+        subtitle: `${detected !== "unknown" ? detected : provider || "?"} · ${url || "no url"}`,
         media,
       };
     },

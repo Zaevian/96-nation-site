@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { metadata as studioMetadata } from "next-sanity/studio";
 
 import { isSanityConfigured } from "@/lib/sanity/env";
-import { Studio } from "./studio";
+import { StudioLoader } from "./studio-loader";
 
 export const dynamic = "force-static";
 
@@ -21,6 +21,7 @@ export const viewport: Viewport = {
 /**
  * Embedded Sanity Studio at /studio.
  * When Sanity env is missing, show setup messaging so the app still builds and deploys.
+ * Studio JS is loaded only via StudioLoader (dynamic import) on the configured path.
  */
 export default function StudioPage() {
   if (!isSanityConfigured()) {
@@ -77,5 +78,5 @@ SANITY_API_READ_TOKEN=`}
     );
   }
 
-  return <Studio />;
+  return <StudioLoader />;
 }

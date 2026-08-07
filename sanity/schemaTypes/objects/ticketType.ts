@@ -78,7 +78,21 @@ export const ticketType = defineType({
           .integer()
           .min(1)
           .max(50)
-          .error("Max per order is required"),
+          .error("Max per order is required")
+          .custom((maxPerOrder, context) => {
+            if (maxPerOrder == null) return true;
+            const capacity = (
+              context.parent as { capacity?: number } | undefined
+            )?.capacity;
+            if (
+              typeof capacity === "number" &&
+              typeof maxPerOrder === "number" &&
+              maxPerOrder > capacity
+            ) {
+              return "Max per order cannot exceed capacity";
+            }
+            return true;
+          }),
     }),
     defineField({
       name: "salesStart",

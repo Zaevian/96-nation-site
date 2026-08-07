@@ -1,6 +1,9 @@
 import { CalendarIcon } from "@sanity/icons";
 import { defineArrayMember, defineField, defineType } from "sanity";
 
+import { isYouTubeOrVimeoUrl } from "../lib/videoProvider";
+import { apiVersion } from "@/lib/sanity/env";
+
 /**
  * Event document with publish-oriented required-field validation.
  * Drafts can be saved with errors; fixing validation is required before a clean publish.
@@ -43,12 +46,33 @@ export const event = defineType({
       type: "string",
       group: "basics",
       description:
-        "Optional unique code for deep links: /t/[code] → this event. Letters/numbers only.",
+        "Optional unique code for deep links: /t/[code] → this event. Must be unique across events.",
       validation: (Rule) =>
-        Rule.regex(/^[A-Za-z0-9_-]{2,32}$/, {
-          name: "short-code",
-          invert: false,
-        }).warning("Use 2–32 letters, numbers, _ or -"),
+        Rule.custom(async (shortCode, context) => {
+          if (!shortCode) return true;
+          if (!/^[A-Za-z0-9_-]{2,32}$/.test(shortCode)) {
+            return "Use 2–32 letters, numbers, _ or -";
+          }
+          try {
+            const client = context.getClient({ apiVersion });
+            const rawId = context.document?._id || "";
+            const publishedId = rawId.replace(/^drafts\./, "");
+            const draftId = publishedId ? `drafts.${publishedId}` : "";
+            const count = await client.fetch<number>(
+              `count(*[_type == "event" && shortCode == $code && !(_id in $ids)])`,
+              {
+                code: shortCode,
+                ids: [publishedId, draftId].filter(Boolean),
+              },
+            );
+            return count === 0
+              ? true
+              : "Short code already used by another event";
+          } catch {
+            // Skip uniqueness when API is unreachable (e.g. placeholder project)
+            return true;
+          }
+        }),
     }),
     defineField({
       name: "summary",
@@ -97,6 +121,17 @@ export const event = defineType({
       type: "datetime",
       group: "whenWhere",
       options: { dateFormat: "YYYY-MM-DD", timeFormat: "HH:mm" },
+      validation: (Rule) =>
+        Rule.custom((endAt, context) => {
+          if (!endAt) return true;
+          const startAt = (context.parent as { startAt?: string } | undefined)
+            ?.startAt;
+          if (!startAt) return true;
+          if (new Date(endAt).getTime() < new Date(startAt).getTime()) {
+            return "End time must be on or after start time";
+          }
+          return true;
+        }),
     }),
     defineField({
       name: "timezone",
@@ -182,11 +217,9 @@ export const event = defineType({
       validation: (Rule) =>
         Rule.uri({ scheme: ["http", "https"] }).custom((url) => {
           if (!url) return true;
-          const ok =
-            /youtube\.com|youtu\.be|vimeo\.com/i.test(url) ||
-            url.includes("youtube") ||
-            url.includes("vimeo");
-          return ok || "Use a YouTube or Vimeo URL";
+          return (
+            isYouTubeOrVimeoUrl(url) || "Use a YouTube or Vimeo URL"
+          );
         }),
     }),
     defineField({
@@ -214,31 +247,15 @@ export const event = defineType({
       ],
     }),
 
-    // SEO
+    // SEO — hero is required and used as share image when ogImage is unset;
+    // frontend may also fall back to Site Settings default OG for other pages.
     defineField({
       name: "seo",
       title: "SEO",
       type: "seo",
       group: "seo",
       description:
-        "For publish: set an OG image here, or rely on Site Settings → default OG image.",
-      validation: (Rule) =>
-        Rule.custom((seo, context) => {
-          const doc = context.document as {
-            status?: string;
-            heroImage?: unknown;
-          } | null;
-          // Soft rule: when marking published, want OG or hero as share image
-          if (doc?.status === "published") {
-            const og = seo && typeof seo === "object" && "ogImage" in seo
-              ? (seo as { ogImage?: unknown }).ogImage
-              : undefined;
-            if (!og && !doc.heroImage) {
-              return "Published events need an OG image or hero image for share cards";
-            }
-          }
-          return true;
-        }),
+        "Optional OG override. Share cards use seo.ogImage if set, otherwise the event hero image (required). Site Settings default OG is a site-wide fallback for pages without their own image.",
     }),
   ],
   orderings: [

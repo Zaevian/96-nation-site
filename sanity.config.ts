@@ -39,5 +39,16 @@ export default defineConfig({
       }
       return prev;
     },
+    // Singleton: no delete / duplicate for siteSettings
+    actions: (prev, { schemaType }) => {
+      if (schemaType === "siteSettings") {
+        return prev.filter(
+          (action) =>
+            action.action !== "delete" &&
+            action.action !== "duplicate",
+        );
+      }
+      return prev;
+    },
   },
 });
