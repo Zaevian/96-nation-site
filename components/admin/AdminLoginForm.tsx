@@ -33,34 +33,42 @@ export function AdminLoginForm({ nextPath }: Props) {
       nextPath.startsWith("/") && !nextPath.startsWith("//")
         ? nextPath
         : "/admin/orders";
-    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
+    // Keep redirect URL path-only (no query). Supabase allow-lists often reject
+    // `?next=...` with "Invalid path specified in request URL".
+    // Persist intended destination for the callback page.
+    try {
+      sessionStorage.setItem("admin_auth_next", safeNext);
+    } catch {
+      /* private mode / blocked storage — callback defaults to /admin/orders */
+    }
+    const redirectTo = `${origin}/auth/callback`;
 
-    // shouldCreateUser: false — admins must already exist in Supabase Auth
-    // (invite via dashboard or create once). Prevents open user-table pollution.
+    // shouldCreateUser: true so first magic link can create the Auth user.
+    // Access is still gated by ADMIN_EMAILS after callback (middleware + requireAdmin).
     const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       options: {
         emailRedirectTo: redirectTo,
-        shouldCreateUser: false,
+        shouldCreateUser: true,
       },
     });
 
     if (error) {
       setStatus("error");
-      // Avoid leaking whether an email exists when Supabase returns user-not-found style errors
+      const msg = error.message || "Could not send magic link.";
       const generic =
-        /signups not allowed|user not found|unable to validate/i.test(
-          error.message,
-        )
+        /signups not allowed|user not found|unable to validate/i.test(msg)
           ? "If this email is an admin account, check your inbox. Otherwise contact the owner to be invited."
-          : error.message;
+          : /invalid path|redirect/i.test(msg)
+            ? "Redirect URL is not allowed in Supabase. Add https://YOUR-SITE/auth/callback under Authentication → URL Configuration → Redirect URLs, then try again."
+            : msg;
       setMessage(generic);
       return;
     }
 
     setStatus("sent");
     setMessage(
-      `If this email is registered as an admin, a magic link is on the way. After signing in you’ll land on ${safeNext}.`,
+      `Check your inbox for a magic link. After signing in you’ll land on ${safeNext}. (Check spam if it doesn’t arrive in a minute.)`,
     );
   }
 
