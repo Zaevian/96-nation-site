@@ -19,7 +19,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   not_allowed:
     "That email is not on the admin allowlist. Contact the site owner.",
   auth_callback:
-    "Magic link expired or invalid. Request a new link.",
+    "Magic link could not be completed (expired, already used, or cookie issue). Request a NEW link, click it once, and open it in the same browser without forwarding the email.",
 };
 
 export default async function AdminLoginPage({
