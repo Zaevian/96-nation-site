@@ -1,32 +1,77 @@
 import type { Metadata } from "next";
+import { Container } from "@/components/ui/Container";
+import {
+  PublicForm,
+  serviceInquiryFields,
+  signupFields,
+} from "@/components/forms/PublicForm";
 
-import { CmsPageView } from "@/components/CmsPageView";
-import { getPageBySlug, getSiteSettings } from "@/lib/sanity/queries";
-import { buildPageMetadata } from "@/lib/seo";
+export const metadata: Metadata = {
+  title: "Genesis",
+  description:
+    "Join 96 Nation: Genesis — community signup and service inquiries.",
+};
 
-export async function generateMetadata(): Promise<Metadata> {
-  const [page, settings] = await Promise.all([
-    getPageBySlug("genesis"),
-    getSiteSettings(),
-  ]);
-  return buildPageMetadata({
-    title: page?.title || "Genesis",
-    description:
-      page?.seo?.metaDescription ||
-      "96 Nation: Genesis — signups, service inquiries, and community forms.",
-    path: "/genesis",
-    seo: page?.seo,
-    settings,
-  });
-}
-
-export default async function GenesisPage() {
-  const page = await getPageBySlug("genesis");
+export default function GenesisPage() {
   return (
-    <CmsPageView
-      page={page}
-      fallbackTitle="96 Nation: Genesis"
-      fallbackDescription="Signups, service inquiries, and community forms will live here. Author long-form intro copy as a Page with slug “genesis” in Sanity Studio; form UI ships in a later PR."
-    />
+    <Container className="py-12">
+      <header className="max-w-prose">
+        <h1 className="text-3xl font-bold tracking-tight text-fg">
+          96 Nation: Genesis
+        </h1>
+        <p className="mt-4 text-muted">
+          Genesis is our community and services hub. Sign up for updates or
+          inquire about production, booking, and media work.
+        </p>
+      </header>
+
+      <div className="mt-10 grid gap-12 lg:grid-cols-2">
+        <section
+          aria-labelledby="signup-heading"
+          className="rounded-lg border border-border bg-surface p-6"
+        >
+          <h2
+            id="signup-heading"
+            className="text-xl font-semibold tracking-tight text-fg"
+          >
+            Community signup
+          </h2>
+          <p className="mt-2 text-sm text-muted">
+            Get on the list for events, community nights, and Genesis news.
+          </p>
+          <div className="mt-6">
+            <PublicForm
+              formType="signup"
+              fields={signupFields}
+              submitLabel="Join Genesis"
+              sourcePath="/genesis"
+            />
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="service-heading"
+          className="rounded-lg border border-border bg-surface p-6"
+        >
+          <h2
+            id="service-heading"
+            className="text-xl font-semibold tracking-tight text-fg"
+          >
+            Service inquiry
+          </h2>
+          <p className="mt-2 text-sm text-muted">
+            Tell us what you need — we&apos;ll follow up by email or phone.
+          </p>
+          <div className="mt-6">
+            <PublicForm
+              formType="service_inquiry"
+              fields={serviceInquiryFields}
+              submitLabel="Send inquiry"
+              sourcePath="/genesis"
+            />
+          </div>
+        </section>
+      </div>
+    </Container>
   );
 }
