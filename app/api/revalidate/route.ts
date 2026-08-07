@@ -18,10 +18,9 @@ export const dynamic = "force-dynamic";
  * POST /api/revalidate
  * Sanity publish webhook → on-demand Next.js cache revalidation.
  *
- * Auth (any one):
+ * Auth (any one; no query-string secrets — leak via logs/proxies/referrers):
  *   Authorization: Bearer ${SANITY_REVALIDATE_SECRET}
  *   x-sanity-revalidate-secret: ${SANITY_REVALIDATE_SECRET}
- *   ?secret= (discouraged; accepted for Sanity webhook query config)
  *
  * Body (JSON, all optional — empty body revalidates common tags):
  *   {
@@ -63,20 +62,11 @@ function authorize(request: Request): boolean {
     return true;
   }
 
+  // Optional custom header (timing-safe); same pattern as inventory sync.
+  // Query-string secrets are intentionally not accepted (URL log leakage).
   const header = request.headers.get("x-sanity-revalidate-secret");
   if (header && timingSafeEqualString(header, secret)) {
     return true;
-  }
-
-  // Sanity dashboard webhooks often put the secret in the URL query.
-  try {
-    const url = new URL(request.url);
-    const q = url.searchParams.get("secret");
-    if (q && timingSafeEqualString(q, secret)) {
-      return true;
-    }
-  } catch {
-    // ignore
   }
 
   return false;

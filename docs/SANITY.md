@@ -25,8 +25,10 @@ Publish in Studio should update public pages without a full redeploy.
    - **Trigger:** Create / Update / Delete on dataset
    - **Filter (example):** `_type in ["event", "page", "siteSettings", "gallery", "video"]`
    - **Projection (optional):** `{_type, "slug": slug.current}`
-   - **Auth:** `Authorization: Bearer <SANITY_REVALIDATE_SECRET>`  
-     (or `?secret=` query / `x-sanity-revalidate-secret` header)
+   - **Auth (headers only — never put the secret in the URL):**
+     - Preferred: `Authorization: Bearer <SANITY_REVALIDATE_SECRET>`
+     - Or: `x-sanity-revalidate-secret: <SANITY_REVALIDATE_SECRET>`
+     - Query `?secret=` is **not** accepted (leaks via access logs / proxies / referrers; same rule as cron + inventory sync)
 3. On success the route returns `{ ok: true, tags: [...], paths: [...] }` and calls `revalidateTag` / `revalidatePath`.
 
 Cache tags used by the app:
