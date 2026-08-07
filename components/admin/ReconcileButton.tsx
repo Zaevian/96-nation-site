@@ -28,9 +28,19 @@ export function ReconcileButton({ orderId }: Props) {
         error?: string;
         message?: string;
         action?: string;
+        audit_failed?: boolean;
       };
 
       if (!res.ok) {
+        // Audit may fail after reconcile applied — still refresh so status is visible
+        if (body.audit_failed) {
+          const msg = encodeURIComponent(
+            body.error || body.message || "audit failed after reconcile",
+          );
+          router.push(`/admin/orders/${orderId}?error=${msg}`);
+          router.refresh();
+          return;
+        }
         setError(body.error || `Reconcile failed (${res.status})`);
         setBusy(false);
         return;

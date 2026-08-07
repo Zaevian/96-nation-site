@@ -50,6 +50,16 @@ function formatMoney(cents: number, currency = "usd"): string {
   }
 }
 
+/** decodeURIComponent without throwing on malformed percent-encoding. */
+function safeDecode(value: string | undefined): string | null {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export default async function AdminOrderDetailPage({
   params,
   searchParams,
@@ -113,7 +123,10 @@ export default async function AdminOrderDetailPage({
           role="status"
         >
           Reconcile complete
-          {q.msg ? `: ${decodeURIComponent(q.msg)}` : "."}
+          {(() => {
+            const msg = safeDecode(q.msg);
+            return msg ? `: ${msg}` : ".";
+          })()}
         </p>
       ) : null}
 
@@ -122,7 +135,7 @@ export default async function AdminOrderDetailPage({
           className="mb-4 rounded-md border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
           role="alert"
         >
-          {decodeURIComponent(q.error)}
+          {safeDecode(q.error)}
         </p>
       ) : null}
 

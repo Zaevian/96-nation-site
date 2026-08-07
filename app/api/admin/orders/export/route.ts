@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/admin";
 import {
   buildDoorCsv,
+  isOrderStatus,
   listOrders,
   writeAdminAudit,
 } from "@/lib/orders/admin";
@@ -37,7 +38,15 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const eventSlug = searchParams.get("event")?.trim() || undefined;
-  const status = searchParams.get("status")?.trim() || undefined;
+  const statusRaw = searchParams.get("status")?.trim() || undefined;
+
+  if (statusRaw && !isOrderStatus(statusRaw)) {
+    return NextResponse.json(
+      { error: `Invalid status filter: ${statusRaw}`, code: "INVALID_STATUS" },
+      { status: 400 },
+    );
+  }
+  const status = statusRaw;
 
   const supabase = createServiceClient();
 
@@ -50,8 +59,15 @@ export async function GET(request: Request) {
       limit: 500,
     });
   } catch (err) {
+    const code = (err as Error & { code?: string }).code;
     const message = err instanceof Error ? err.message : "export_failed";
     console.error("[admin/orders/export]", message);
+    if (code === "INVALID_STATUS") {
+      return NextResponse.json(
+        { error: message, code },
+        { status: 400 },
+      );
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 

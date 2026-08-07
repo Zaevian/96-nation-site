@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { requireAdmin } from "@/lib/admin";
 import {
+  isOrderStatus,
   listOrderEventSlugs,
   listOrders,
   ORDER_STATUSES,
@@ -80,7 +81,9 @@ export default async function AdminOrdersPage({
 
   const params = await searchParams;
   const eventSlug = params.event?.trim() || undefined;
-  const status = params.status?.trim() || undefined;
+  const statusRaw = params.status?.trim() || undefined;
+  const statusInvalid = Boolean(statusRaw && !isOrderStatus(statusRaw));
+  const status = statusInvalid ? undefined : statusRaw;
 
   let rows: AdminOrderRow[] = [];
   let eventSlugs: string[] = [];
@@ -107,6 +110,7 @@ export default async function AdminOrdersPage({
 
   const exportQuery = new URLSearchParams();
   if (eventSlug) exportQuery.set("event", eventSlug);
+  // Only pass valid status to export (invalid would 400)
   if (status) exportQuery.set("status", status);
   const exportHref = `/api/admin/orders/export${
     exportQuery.toString() ? `?${exportQuery.toString()}` : ""
@@ -145,6 +149,16 @@ export default async function AdminOrdersPage({
           role="alert"
         >
           {params.error}
+        </p>
+      ) : null}
+
+      {statusInvalid ? (
+        <p
+          className="mb-4 rounded-md border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
+          role="alert"
+        >
+          Unknown status filter &quot;{statusRaw}&quot; was ignored. Choose a
+          status from the list.
         </p>
       ) : null}
 
@@ -206,7 +220,7 @@ export default async function AdminOrdersPage({
             <select
               id="filter-status"
               name="status"
-              defaultValue={status ?? ""}
+              defaultValue={statusInvalid ? "" : (status ?? "")}
               className="mt-1 min-h-11 rounded-md border border-border bg-bg px-3 py-2 text-sm text-fg"
             >
               <option value="">All statuses</option>

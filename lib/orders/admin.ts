@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { OrderRow } from "@/lib/checkout/orders";
+import { isOrderStatus } from "@/lib/orders/door-csv";
 import {
   enqueueAndFlushOrderConfirmation,
   expirePendingOrder,
@@ -20,24 +21,19 @@ export type AdminOrderRow = OrderRow & {
   updated_at?: string | null;
 };
 
-export const ORDER_STATUSES = [
-  "pending",
-  "paid",
-  "fulfilled",
-  "expired",
-  "cancelled",
-  "failed",
-  "refunded",
-  "partially_refunded",
-] as const;
+export {
+  buildDoorCsv,
+  csvEscape,
+  isOrderStatus,
+  neutralizeCsvFormula,
+  ORDER_STATUSES,
+  type OrderStatus,
+} from "@/lib/orders/door-csv";
 
-export type OrderStatus = (typeof ORDER_STATUSES)[number];
-
-export function isOrderStatus(value: string): value is OrderStatus {
-  return (ORDER_STATUSES as readonly string[]).includes(value);
-}
-
-/** Write an admin_audit_log row (service role). Never throws to caller for UX paths. */
+/**
+ * Write an admin_audit_log row (service role).
+ * Throws on failure; callers decide abort vs soft-fail.
+ */
 export async function writeAdminAudit(
   client: SupabaseClient,
   actorEmail: string,
@@ -61,10 +57,20 @@ export type ListOrdersFilters = {
   limit?: number;
 };
 
+/**
+ * List orders. If `status` is provided but not a valid order_status,
+ * throws with code INVALID_STATUS (callers map to 400 / UI warning).
+ */
 export async function listOrders(
   client: SupabaseClient,
   filters: ListOrdersFilters = {},
 ): Promise<AdminOrderRow[]> {
+  if (filters.status && !isOrderStatus(filters.status)) {
+    const err = new Error(`Invalid order status: ${filters.status}`);
+    (err as Error & { code?: string }).code = "INVALID_STATUS";
+    throw err;
+  }
+
   const limit = Math.min(Math.max(filters.limit ?? 100, 1), 500);
   let query = client
     .from("orders")
@@ -75,7 +81,7 @@ export async function listOrders(
   if (filters.eventSlug) {
     query = query.eq("event_slug", filters.eventSlug);
   }
-  if (filters.status && isOrderStatus(filters.status)) {
+  if (filters.status) {
     query = query.eq("status", filters.status);
   }
 
@@ -112,60 +118,6 @@ export async function listOrderEventSlugs(
     }
   }
   return slugs;
-}
-
-/** Escape a CSV field (RFC-style quotes). */
-export function csvEscape(value: string | number | null | undefined): string {
-  if (value === null || value === undefined) return "";
-  const s = String(value);
-  if (/[",\n\r]/.test(s)) {
-    return `"${s.replace(/"/g, '""')}"`;
-  }
-  return s;
-}
-
-/**
- * Door CSV (DESIGN Appendix F): one row per ticket unit.
- * Columns: order_id, ticket_index, quantity_total, event_slug, ticket_type_id,
- * buyer_name, buyer_email, buyer_phone, status, paid_at
- */
-export function buildDoorCsv(orders: AdminOrderRow[]): string {
-  const header = [
-    "order_id",
-    "ticket_index",
-    "quantity_total",
-    "event_slug",
-    "ticket_type_id",
-    "buyer_name",
-    "buyer_email",
-    "buyer_phone",
-    "status",
-    "paid_at",
-  ].join(",");
-
-  const lines: string[] = [header];
-
-  for (const order of orders) {
-    const qty = Math.max(1, Number(order.quantity) || 1);
-    for (let i = 1; i <= qty; i += 1) {
-      lines.push(
-        [
-          csvEscape(order.id),
-          csvEscape(i),
-          csvEscape(qty),
-          csvEscape(order.event_slug),
-          csvEscape(order.ticket_type_id),
-          csvEscape(order.buyer_name),
-          csvEscape(order.buyer_email),
-          csvEscape(order.buyer_phone),
-          csvEscape(order.status),
-          csvEscape(order.paid_at),
-        ].join(","),
-      );
-    }
-  }
-
-  return lines.join("\n") + "\n";
 }
 
 export type ReconcileResult = {

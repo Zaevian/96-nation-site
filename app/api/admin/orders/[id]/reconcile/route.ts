@@ -52,6 +52,8 @@ export async function POST(_request: Request, context: RouteContext) {
       );
     }
 
+    // Fail-closed: DESIGN requires every reconcile write to admin_audit_log.
+    // Reconcile may already have applied; surface that if audit fails.
     try {
       await writeAdminAudit(supabase, auth.user.email!, "reconcile", {
         order_id: id,
@@ -61,7 +63,23 @@ export async function POST(_request: Request, context: RouteContext) {
       });
     } catch (auditErr) {
       console.error("[admin/reconcile] audit failed:", auditErr);
-      // Still return success of reconcile; audit failure is secondary
+      return NextResponse.json(
+        {
+          error:
+            "Reconcile applied but audit log write failed; check order status and admin_audit_log",
+          action: result.action,
+          message: result.message,
+          order: result.order
+            ? {
+                id: result.order.id,
+                status: result.order.status,
+                paid_at: result.order.paid_at,
+              }
+            : null,
+          audit_failed: true,
+        },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({
