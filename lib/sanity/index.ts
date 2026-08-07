@@ -10,13 +10,20 @@ export {
 export { getClient, getServerClient, sanityFetch } from "./client";
 export { urlForImage } from "./image";
 export {
+  getEventByShortCode,
   getEventBySlug,
+  getEvents,
   getFeaturedEvents,
   getPageBySlug,
   getSiteSettings,
 } from "./queries";
 export type {
   CmsPage,
+  EventDetail,
+  EventListItem,
+  EventShortLink,
+  EventTicketType,
+  EventVenue,
   FeaturedEvent,
   SanityImage,
   SeoFields,

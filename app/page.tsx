@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { EventCard } from "@/components/EventCard";
 import { PortableText } from "@/components/PortableText";
 import { ButtonLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -11,7 +12,7 @@ import {
 } from "@/lib/sanity/queries";
 import { urlForImage } from "@/lib/sanity/image";
 import { buildPageMetadata } from "@/lib/seo";
-import type { FeaturedEvent } from "@/lib/sanity/types";
+import type { EventListItem } from "@/lib/sanity/types";
 import { sanitizeHrefOrFallback } from "@/lib/url";
 
 const FALLBACK_HERO = {
@@ -37,23 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-function formatEventDate(iso?: string | null): string | null {
-  if (!iso) return null;
-  try {
-    return new Intl.DateTimeFormat("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      timeZone: "America/New_York",
-    }).format(new Date(iso));
-  } catch {
-    return null;
-  }
-}
-
-function FeaturedEvents({ events }: { events: FeaturedEvent[] }) {
+function FeaturedEvents({ events }: { events: EventListItem[] }) {
   if (events.length === 0) {
     return (
       <section aria-labelledby="featured-heading" className="mt-16">
@@ -94,47 +79,9 @@ function FeaturedEvents({ events }: { events: FeaturedEvent[] }) {
         </Link>
       </div>
       <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-        {events.map((event) => {
-          const dateLabel = formatEventDate(event.startAt);
-          const imageUrl = event.heroImage
-            ? urlForImage(event.heroImage)?.width(640).height(360).url()
-            : null;
-          return (
-            <li key={event._id}>
-              <Link
-                href={`/events/${event.slug}`}
-                className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface no-underline transition-colors hover:border-muted"
-              >
-                {imageUrl ? (
-                  <div className="relative aspect-[16/9] w-full bg-bg">
-                    <Image
-                      src={imageUrl}
-                      alt={event.heroImage?.alt || event.title}
-                      fill
-                      className="object-cover transition-opacity group-hover:opacity-90"
-                      sizes="(max-width: 640px) 100vw, 50vw"
-                    />
-                  </div>
-                ) : null}
-                <div className="flex flex-1 flex-col gap-2 p-4">
-                  {dateLabel ? (
-                    <p className="text-xs font-medium uppercase tracking-wider text-accent">
-                      {dateLabel}
-                    </p>
-                  ) : null}
-                  <h3 className="text-lg font-semibold text-fg group-hover:text-accent">
-                    {event.title}
-                  </h3>
-                  {event.summary ? (
-                    <p className="line-clamp-2 text-sm text-muted">
-                      {event.summary}
-                    </p>
-                  ) : null}
-                </div>
-              </Link>
-            </li>
-          );
-        })}
+        {events.map((event) => (
+          <EventCard key={event._id} event={event} headingLevel={3} />
+        ))}
       </ul>
     </section>
   );

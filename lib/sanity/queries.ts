@@ -1,7 +1,14 @@
 import { cache } from "react";
 
 import { sanityFetch } from "./client";
-import type { CmsPage, FeaturedEvent, SiteSettings } from "./types";
+import type {
+  CmsPage,
+  EventDetail,
+  EventListItem,
+  EventShortLink,
+  FeaturedEvent,
+  SiteSettings,
+} from "./types";
 
 const siteSettingsQuery = `*[_type == "siteSettings"][0]{
   siteTitle,
@@ -42,17 +49,62 @@ const featuredEventsQuery = `*[_type == "event" && status == "published" && defi
     summary,
     startAt,
     status,
-    heroImage
+    heroImage,
+    venue{ name, city },
+    ticketTypes[]{ id, name, priceCents, capacity }
+  }`;
+
+const eventsListQuery = `*[_type == "event" && status in ["published", "cancelled"] && defined(slug.current)]
+  | order(startAt asc){
+    _id,
+    title,
+    "slug": slug.current,
+    summary,
+    startAt,
+    endAt,
+    timezone,
+    status,
+    heroImage,
+    venue{ name, city },
+    ticketTypes[]{ id, name, priceCents, capacity }
   }`;
 
 const eventBySlugQuery = `*[_type == "event" && slug.current == $slug && status in ["published", "cancelled"]][0]{
   _id,
   title,
   "slug": slug.current,
+  shortCode,
   summary,
+  body,
   startAt,
+  endAt,
+  timezone,
   status,
-  heroImage
+  heroImage,
+  promoVideoUrl,
+  venue,
+  ticketTypes[]{
+    id,
+    name,
+    description,
+    priceCents,
+    currency,
+    capacity,
+    maxPerOrder,
+    salesStart,
+    salesEnd
+  },
+  seo{
+    metaTitle,
+    metaDescription,
+    ogImage
+  }
+}`;
+
+/** Published/cancelled event by shortCode for /t/[code] redirects. Drafts never match. */
+const eventByShortCodeQuery = `*[_type == "event" && shortCode == $code && status in ["published", "cancelled"] && defined(slug.current)][0]{
+  "slug": slug.current,
+  status
 }`;
 
 /** Singleton site settings (request-deduped via React cache). */
@@ -77,9 +129,26 @@ export const getFeaturedEvents = cache(
   },
 );
 
-/** Published/cancelled event by slug (stub detail until full PR 5). */
+/** Published + cancelled events for the list page (drafts excluded). */
+export const getEvents = cache(async (): Promise<EventListItem[]> => {
+  const rows = await sanityFetch<EventListItem[]>(eventsListQuery);
+  return rows ?? [];
+});
+
+/** Published/cancelled event by slug (full detail). */
 export const getEventBySlug = cache(
-  async (slug: string): Promise<FeaturedEvent | null> => {
-    return sanityFetch<FeaturedEvent>(eventBySlugQuery, { slug });
+  async (slug: string): Promise<EventDetail | null> => {
+    return sanityFetch<EventDetail>(eventBySlugQuery, { slug });
+  },
+);
+
+/**
+ * Resolve a public short code to an event slug.
+ * Only published/cancelled events; drafts are not public.
+ */
+export const getEventByShortCode = cache(
+  async (code: string): Promise<EventShortLink | null> => {
+    if (!code) return null;
+    return sanityFetch<EventShortLink>(eventByShortCodeQuery, { code });
   },
 );

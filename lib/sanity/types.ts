@@ -47,12 +47,68 @@ export type CmsPage = {
   seo?: SeoFields | null;
 };
 
-export type FeaturedEvent = {
+export type EventVenue = {
+  name?: string | null;
+  address?: string | null;
+  city?: string | null;
+  mapUrl?: string | null;
+};
+
+export type EventTicketType = {
+  id: string;
+  name: string;
+  description?: string | null;
+  priceCents: number;
+  currency?: string | null;
+  capacity: number;
+  maxPerOrder?: number | null;
+  salesStart?: string | null;
+  salesEnd?: string | null;
+};
+
+/** Card / list row for published + cancelled events. */
+export type EventListItem = {
   _id: string;
   title: string;
   slug: string;
   summary?: string | null;
   startAt?: string | null;
+  endAt?: string | null;
+  timezone?: string | null;
   status?: string | null;
   heroImage?: SanityImage | null;
+  venue?: Pick<EventVenue, "name" | "city"> | null;
+  /** Sanity-only capacity until Supabase inventory lands. */
+  ticketTypes?: Pick<
+    EventTicketType,
+    "id" | "name" | "priceCents" | "capacity"
+  >[] | null;
+};
+
+/** Home featured strip; same shape as list cards. */
+export type FeaturedEvent = EventListItem;
+
+/** Full event for detail page. */
+export type EventDetail = {
+  _id: string;
+  title: string;
+  slug: string;
+  shortCode?: string | null;
+  summary?: string | null;
+  body?: PortableTextBlock[] | null;
+  startAt?: string | null;
+  endAt?: string | null;
+  timezone?: string | null;
+  status?: string | null;
+  heroImage?: SanityImage | null;
+  promoVideoUrl?: string | null;
+  venue?: EventVenue | null;
+  ticketTypes?: EventTicketType[] | null;
+  seo?: SeoFields | null;
+};
+
+/** Short-link lookup result. */
+export type EventShortLink = {
+  slug: string;
+  status?: string | null;
 };
