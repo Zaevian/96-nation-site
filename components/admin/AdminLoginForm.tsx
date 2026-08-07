@@ -32,7 +32,7 @@ export function AdminLoginForm({ nextPath }: Props) {
     const safeNext =
       nextPath.startsWith("/") && !nextPath.startsWith("//")
         ? nextPath
-        : "/admin/forms";
+        : "/admin/orders";
     const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
 
     // shouldCreateUser: false — admins must already exist in Supabase Auth

@@ -9,11 +9,11 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const nextRaw = searchParams.get("next") ?? "/admin/forms";
+  const nextRaw = searchParams.get("next") ?? "/admin/orders";
   const next =
     nextRaw.startsWith("/") && !nextRaw.startsWith("//")
       ? nextRaw
-      : "/admin/forms";
+      : "/admin/orders";
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

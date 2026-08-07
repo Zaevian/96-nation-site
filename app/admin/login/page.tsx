@@ -69,7 +69,7 @@ export default async function AdminLoginPage({
           </p>
         ) : (
           <div className="mt-6">
-            <AdminLoginForm nextPath={params.next ?? "/admin/forms"} />
+            <AdminLoginForm nextPath={params.next ?? "/admin/orders"} />
           </div>
         )}
       </div>

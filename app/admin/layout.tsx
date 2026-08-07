@@ -11,6 +11,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <span className="font-semibold text-fg">Admin</span>
         <nav aria-label="Admin" className="flex flex-wrap gap-3">
           <Link
+            href="/admin/orders"
+            className="text-muted no-underline hover:text-accent"
+          >
+            Orders
+          </Link>
+          <Link
             href="/admin/forms"
             className="text-muted no-underline hover:text-accent"
           >
