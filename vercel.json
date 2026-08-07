@@ -1,12 +1,2 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/release-reservations",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/cron/reconcile-orders",
-      "schedule": "30 4 * * *"
-    }
-  ]
 }
