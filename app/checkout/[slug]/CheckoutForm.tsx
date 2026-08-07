@@ -34,6 +34,24 @@ function newIdempotencyKey(): string {
   });
 }
 
+/** Codes / statuses where a new attempt must use a fresh idempotency key. */
+function shouldRotateIdempotencyKey(
+  status: number,
+  code?: string,
+  retryWithNewKey?: boolean,
+): boolean {
+  if (retryWithNewKey) return true;
+  if (status === 502 || status === 410) return true;
+  if (
+    code === "STRIPE_ERROR" ||
+    code === "RESERVATION_EXPIRED" ||
+    code === "CONFLICT"
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export function CheckoutForm({
   eventSlug,
   eventTitle,
@@ -44,8 +62,10 @@ export function CheckoutForm({
   const router = useRouter();
   const isFree = ticket.priceCents === 0;
 
-  // Stable per mount — reused on retry for idempotency
-  const [idempotencyKey] = useState(() => newIdempotencyKey());
+  // Reused on retry for successful double-submit; rotated after payment failure.
+  const [idempotencyKey, setIdempotencyKey] = useState(() =>
+    newIdempotencyKey(),
+  );
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -83,6 +103,8 @@ export function CheckoutForm({
       }
 
       setSubmitting(true);
+      // Capture key for this attempt; may rotate after failure for next submit.
+      const keyForAttempt = idempotencyKey;
       try {
         const endpoint = isFree
           ? "/api/checkout/rsvp"
@@ -102,7 +124,7 @@ export function CheckoutForm({
             },
             marketingOptIn,
             acceptedLegal,
-            idempotencyKey,
+            idempotencyKey: keyForAttempt,
           }),
         });
 
@@ -115,9 +137,19 @@ export function CheckoutForm({
           code?: string;
           message?: string;
           replayed?: boolean;
+          retryWithNewKey?: boolean;
         };
 
         if (!res.ok) {
+          if (
+            shouldRotateIdempotencyKey(
+              res.status,
+              data.code,
+              data.retryWithNewKey,
+            )
+          ) {
+            setIdempotencyKey(newIdempotencyKey());
+          }
           setError(data.error || `Request failed (${res.status})`);
           return;
         }
@@ -133,7 +165,6 @@ export function CheckoutForm({
             );
             return;
           }
-          // Replay without token — send user to minimal success
           router.push(
             `/checkout/success?order_id=${encodeURIComponent(data.orderId || "")}`,
           );
@@ -145,8 +176,11 @@ export function CheckoutForm({
           return;
         }
 
+        // No URL on success path — rotate so user can retry cleanly
+        setIdempotencyKey(newIdempotencyKey());
         setError("No checkout URL returned. Please try again.");
       } catch {
+        // Network blip: keep key so double-submit still dedupes if server got it
         setError("Network error. Please try again.");
       } finally {
         setSubmitting(false);
@@ -170,7 +204,10 @@ export function CheckoutForm({
 
   if (!ticketingEnabled) {
     return (
-      <p className="rounded-lg border border-border bg-surface p-4 text-muted" role="status">
+      <p
+        className="rounded-lg border border-border bg-surface p-4 text-muted"
+        role="status"
+      >
         Ticketing is temporarily disabled. Please check back later.
       </p>
     );
@@ -214,7 +251,10 @@ export function CheckoutForm({
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="checkout-name" className="mb-1 block text-sm font-medium text-fg">
+          <label
+            htmlFor="checkout-name"
+            className="mb-1 block text-sm font-medium text-fg"
+          >
             Full name
           </label>
           <input
@@ -231,7 +271,10 @@ export function CheckoutForm({
         </div>
 
         <div>
-          <label htmlFor="checkout-email" className="mb-1 block text-sm font-medium text-fg">
+          <label
+            htmlFor="checkout-email"
+            className="mb-1 block text-sm font-medium text-fg"
+          >
             Email
           </label>
           <input
@@ -248,7 +291,10 @@ export function CheckoutForm({
         </div>
 
         <div>
-          <label htmlFor="checkout-phone" className="mb-1 block text-sm font-medium text-fg">
+          <label
+            htmlFor="checkout-phone"
+            className="mb-1 block text-sm font-medium text-fg"
+          >
             Phone
           </label>
           <input
@@ -270,7 +316,10 @@ export function CheckoutForm({
         </div>
 
         <div>
-          <label htmlFor="checkout-qty" className="mb-1 block text-sm font-medium text-fg">
+          <label
+            htmlFor="checkout-qty"
+            className="mb-1 block text-sm font-medium text-fg"
+          >
             Quantity
           </label>
           <select
@@ -299,15 +348,23 @@ export function CheckoutForm({
           />
           <label htmlFor="checkout-legal" className="text-sm text-muted">
             I agree to the{" "}
-            <a href="/terms" className="text-accent underline underline-offset-2">
+            <a
+              href="/terms"
+              className="text-accent underline underline-offset-2"
+            >
               Terms
             </a>{" "}
             and{" "}
-            <a href="/privacy" className="text-accent underline underline-offset-2">
+            <a
+              href="/privacy"
+              className="text-accent underline underline-offset-2"
+            >
               Privacy Policy
             </a>
             .{" "}
-            <span className="text-xs">(Optional stub — required in a later release.)</span>
+            <span className="text-xs">
+              (Optional stub — required in a later release.)
+            </span>
           </label>
         </div>
 
@@ -327,7 +384,10 @@ export function CheckoutForm({
       </div>
 
       {error ? (
-        <p className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger" role="alert">
+        <p
+          className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}

@@ -55,4 +55,5 @@ export type CheckoutErrorCode =
   | "CANCELLED"
   | "STRIPE_ERROR"
   | "INVENTORY_MISSING"
+  | "RESERVATION_EXPIRED"
   | "INTERNAL";

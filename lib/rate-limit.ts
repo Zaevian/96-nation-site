@@ -3,6 +3,7 @@ import "server-only";
 /**
  * Optional Upstash rate limit for checkout APIs.
  * When Upstash env is missing, allows all requests (graceful degrade).
+ * Caches Ratelimit singleton when configured to avoid connection churn.
  */
 
 export type RateLimitResult = {
@@ -11,11 +12,49 @@ export type RateLimitResult = {
   limit?: number;
 };
 
+type Limiter = {
+  limit: (id: string) => Promise<{
+    success: boolean;
+    remaining: number;
+    limit: number;
+  }>;
+};
+
+let checkoutLimiter: Limiter | null | undefined;
+
 function isUpstashConfigured(): boolean {
   return Boolean(
     process.env.UPSTASH_REDIS_REST_URL?.trim() &&
       process.env.UPSTASH_REDIS_REST_TOKEN?.trim(),
   );
+}
+
+async function getCheckoutLimiter(): Promise<Limiter | null> {
+  if (checkoutLimiter !== undefined) {
+    return checkoutLimiter;
+  }
+  if (!isUpstashConfigured()) {
+    checkoutLimiter = null;
+    return null;
+  }
+
+  try {
+    const { Ratelimit } = await import("@upstash/ratelimit");
+    const { Redis } = await import("@upstash/redis");
+
+    const redis = Redis.fromEnv();
+    checkoutLimiter = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, "10 m"),
+      analytics: false,
+      prefix: "rl:checkout",
+    });
+    return checkoutLimiter;
+  } catch (err) {
+    console.error("[rate-limit] failed to init Upstash:", err);
+    checkoutLimiter = null;
+    return null;
+  }
 }
 
 /**
@@ -24,21 +63,11 @@ function isUpstashConfigured(): boolean {
 export async function rateLimitCheckout(
   identifier: string,
 ): Promise<RateLimitResult> {
-  if (!isUpstashConfigured()) {
-    return { success: true };
-  }
-
   try {
-    const { Ratelimit } = await import("@upstash/ratelimit");
-    const { Redis } = await import("@upstash/redis");
-
-    const redis = Redis.fromEnv();
-    const limiter = new Ratelimit({
-      redis,
-      limiter: Ratelimit.slidingWindow(10, "10 m"),
-      analytics: false,
-      prefix: "rl:checkout",
-    });
+    const limiter = await getCheckoutLimiter();
+    if (!limiter) {
+      return { success: true };
+    }
 
     const result = await limiter.limit(identifier || "anonymous");
     return {
