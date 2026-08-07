@@ -13,9 +13,11 @@
     "test:a11y": "playwright test tests/a11y.spec.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.109.0",
+    "next": "15.5.18",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.18"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
