@@ -32,7 +32,7 @@ export default function VideosPage() {
       {videos.length === 0 ? (
         <EmptyState
           title="No videos yet"
-          description="Embeds will show up here when the team publishes video entries in Sanity. Check events for live show dates."
+          description="Clips will land here as we post them. Check events for live show dates in the meantime."
           actionHref="/events"
           actionLabel="Browse events"
         />

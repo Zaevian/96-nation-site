@@ -6,6 +6,16 @@ import { Container } from "@/components/ui/Container";
 import { getPageBySlug, getSiteSettings } from "@/lib/sanity/queries";
 import { buildPageMetadata } from "@/lib/seo";
 
+const FALLBACK_DESCRIPTION =
+  "96 Nation is a Tallahassee live events company putting on shows and backing local talent.";
+
+const FALLBACK_ABOUT_PARAS = [
+  "96 Nation is a live events company based in Tallahassee. We book and promote all-ages shows, sell tickets for the night, and keep a home base online so people can find the next date without hunting around.",
+  "We're also a creative collective. Our focus is the local music and arts scene: getting artists on stage, capturing the night, and giving people a real place to plug in.",
+  "Genesis is how we help local talent go further. Through Genesis we offer creative and media support, community signup, and a way to ask about production, booking, and related work.",
+  "If you're an artist, a fan, or just looking for something to do on a weekend in Tallahassee, you're welcome here. Grab tickets when a show drops, poke around the gallery and videos, or reach out through Genesis or contact.",
+];
+
 export async function generateMetadata(): Promise<Metadata> {
   const [page, settings] = await Promise.all([
     getPageBySlug("about"),
@@ -16,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       page?.seo?.metaDescription ||
       settings?.tagline ||
-      "About 96 Nation — local music, tickets, and Genesis.",
+      FALLBACK_DESCRIPTION,
     path: "/about",
     seo: page?.seo,
     settings,
@@ -24,8 +34,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * About page: prefer dedicated CMS `page` (slug `about`),
- * else siteSettings about fields, else stub.
+ * About page: prefer dedicated CMS page (slug about),
+ * else siteSettings about fields, else local fallback copy.
  */
 export default async function AboutPage() {
   const [page, settings] = await Promise.all([
@@ -38,7 +48,7 @@ export default async function AboutPage() {
       <CmsPageView
         page={page}
         fallbackTitle="About 96 Nation"
-        fallbackDescription="About 96 Nation."
+        fallbackDescription={FALLBACK_DESCRIPTION}
       />
     );
   }
@@ -55,12 +65,11 @@ export default async function AboutPage() {
             <PortableText value={settings!.aboutBody} />
           </div>
         ) : (
-          <p className="mt-4 max-w-prose text-muted">
-            96 Nation is a Tallahassee-area music hub for all-ages shows,
-            ticketing, galleries, and Genesis community forms. Connect a Sanity
-            project and edit Site Settings or a Page with slug “about” to replace
-            this stub.
-          </p>
+          <div className="mt-6 max-w-prose space-y-4 text-muted">
+            {FALLBACK_ABOUT_PARAS.map((para) => (
+              <p key={para.slice(0, 40)}>{para}</p>
+            ))}
+          </div>
         )}
       </article>
     </Container>

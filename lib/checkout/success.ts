@@ -187,7 +187,7 @@ export async function resolveSuccessView(params: {
         kind: "processing",
         orderId: null,
         message:
-          "Payment received. Your order is still processing — refresh in a moment or check your email.",
+          "Payment received. Your order is still processing. Refresh in a moment or check your email.",
       };
     }
 

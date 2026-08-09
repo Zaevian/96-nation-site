@@ -9,7 +9,7 @@ import {
 export const metadata: Metadata = {
   title: "Genesis",
   description:
-    "Join 96 Nation: Genesis — community signup and service inquiries.",
+    "Genesis by 96 Nation helps Tallahassee talent with creative and media support. Sign up or send a service inquiry.",
 };
 
 export default function GenesisPage() {
@@ -20,8 +20,9 @@ export default function GenesisPage() {
           96 Nation: Genesis
         </h1>
         <p className="mt-4 text-muted">
-          Genesis is our community and services hub. Sign up for updates or
-          inquire about production, booking, and media work.
+          Genesis is here to help local Tallahassee talent take the next step.
+          Sign up for community updates, or ask about production, booking, and
+          media work.
         </p>
       </header>
 
@@ -37,7 +38,7 @@ export default function GenesisPage() {
             Community signup
           </h2>
           <p className="mt-2 text-sm text-muted">
-            Get on the list for events, community nights, and Genesis news.
+            Get on the list for shows, community nights, and Genesis news.
           </p>
           <div className="mt-6">
             <PublicForm
@@ -60,7 +61,7 @@ export default function GenesisPage() {
             Service inquiry
           </h2>
           <p className="mt-2 text-sm text-muted">
-            Tell us what you need — we&apos;ll follow up by email or phone.
+            Tell us what you need. We&apos;ll follow up by email or phone.
           </p>
           <div className="mt-6">
             <PublicForm

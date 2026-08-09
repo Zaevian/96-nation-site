@@ -177,7 +177,7 @@ function buildEmail(
 
   if (template === "rsvp_confirmation") {
     return {
-      subject: `RSVP confirmed — ${eventTitle}`,
+      subject: `RSVP confirmed: ${eventTitle}`,
       text: [
         `Hi ${buyerName},`,
         ``,
@@ -187,14 +187,14 @@ function buildEmail(
         ``,
         `View confirmation: ${successUrl}`,
         ``,
-        `— 96 Nation`,
+        `96 Nation`,
       ].join("\n"),
       html: `
         <p>Hi ${escapeHtml(buyerName)},</p>
         <p>Your RSVP for <strong>${escapeHtml(eventTitle)}</strong> is confirmed.</p>
         <p>Quantity: ${quantity}<br/>Order: ${escapeHtml(orderId)}</p>
         <p><a href="${escapeHtml(successUrl)}">View confirmation</a></p>
-        <p>— 96 Nation</p>
+        <p>96 Nation</p>
       `,
     };
   }
@@ -206,7 +206,7 @@ function buildEmail(
       : null;
 
   return {
-    subject: `Ticket confirmation — ${eventTitle}`,
+    subject: `Ticket confirmation: ${eventTitle}`,
     text: [
       `Hi ${buyerName},`,
       ``,
@@ -217,7 +217,7 @@ function buildEmail(
       ``,
       `View confirmation: ${successUrl}`,
       ``,
-      `— 96 Nation`,
+      `96 Nation`,
     ]
       .filter(Boolean)
       .join("\n"),
@@ -230,7 +230,7 @@ function buildEmail(
           : ""
       }<br/>Order: ${escapeHtml(orderId)}</p>
       <p><a href="${escapeHtml(successUrl)}">View confirmation</a></p>
-      <p>— 96 Nation</p>
+      <p>96 Nation</p>
     `,
   };
 }

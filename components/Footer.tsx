@@ -11,8 +11,7 @@ export function Footer() {
         <div className="max-w-sm space-y-2">
           <p className="text-base font-bold text-fg">96 Nation</p>
           <p className="text-sm text-muted">
-            Tallahassee-area music and local talent. Tickets, Genesis, and
-            community — mobile-first.
+            Tallahassee live music, tickets, and local talent. Home of Genesis.
           </p>
           <p className="text-sm text-muted">
             <a
@@ -42,9 +41,7 @@ export function Footer() {
 
       <Container className="border-t border-border py-4">
         <p className="text-xs text-muted">
-          © {year} 96 Nation. All rights reserved. Placeholder brand tokens —
-          AA contrast documented in{" "}
-          <code className="text-fg">app/globals.css</code>.
+          © {year} 96 Nation. All rights reserved.
         </p>
       </Container>
     </footer>

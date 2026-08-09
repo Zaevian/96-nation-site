@@ -31,7 +31,7 @@ type SearchParams = Promise<{
 }>;
 
 function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
+  if (!iso) return "n/a";
   try {
     return new Intl.DateTimeFormat("en-US", {
       dateStyle: "medium",

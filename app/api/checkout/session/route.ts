@@ -125,7 +125,7 @@ export async function POST(request: Request) {
   if (unitPrice === 0) {
     return jsonError(
       400,
-      "This ticket is free — use POST /api/checkout/rsvp",
+      "This ticket is free. Use POST /api/checkout/rsvp",
       "FREE_EVENT_USE_RSVP",
     );
   }
@@ -171,14 +171,14 @@ export async function POST(request: Request) {
         if (isInventoryMissing(err)) {
           return jsonError(
             503,
-            "Inventory not synced for this ticket — try again later",
+            "Inventory not synced for this ticket. Try again later.",
             "INVENTORY_MISSING",
           );
         }
         console.error("[checkout/session] reactivate failed order:", err);
         return jsonError(
           500,
-          "Could not retry failed checkout — try again with a fresh form",
+          "Could not retry failed checkout. Try again with a fresh form.",
           "INTERNAL",
           { retryWithNewKey: true },
         );
@@ -198,7 +198,7 @@ export async function POST(request: Request) {
         }
         return jsonError(
           410,
-          "Reservation expired — please start checkout again",
+          "Reservation expired. Please start checkout again.",
           "RESERVATION_EXPIRED",
           { retryWithNewKey: true },
         );
@@ -240,7 +240,7 @@ export async function POST(request: Request) {
           console.error("[checkout/session] clear session id:", err);
           return jsonError(
             500,
-            "Could not recover checkout session — please retry",
+            "Could not recover checkout session. Please retry.",
             "INTERNAL",
             { retryWithNewKey: true },
           );
@@ -289,7 +289,7 @@ export async function POST(request: Request) {
     if (isInventoryMissing(err)) {
       return jsonError(
         503,
-        "Inventory not synced for this ticket — try again later",
+        "Inventory not synced for this ticket. Try again later.",
         "INVENTORY_MISSING",
       );
     }
@@ -382,7 +382,7 @@ async function createStripeAndAttach(
     }
     return jsonError(
       410,
-      "Reservation expired — please start checkout again",
+      "Reservation expired. Please start checkout again.",
       "RESERVATION_EXPIRED",
       { retryWithNewKey: true },
     );
@@ -428,7 +428,7 @@ async function createStripeAndAttach(
         currency: order.currency || "usd",
         unit_amount: order.unit_price_cents,
         product_data: {
-          name: `${eventTitle} — ${ticketName}`,
+          name: `${eventTitle}: ${ticketName}`,
         },
       },
     },
@@ -487,14 +487,14 @@ async function createStripeAndAttach(
       );
       return jsonError(
         502,
-        "Payment provider error and inventory release failed — contact support",
+        "Payment provider error and inventory release failed. Contact support.",
         "STRIPE_ERROR",
         { retryWithNewKey: true, releaseFailed: true },
       );
     }
     return jsonError(
       502,
-      "Payment provider error — reservation released; please retry",
+      "Payment provider error. Reservation released; please retry.",
       "STRIPE_ERROR",
       { retryWithNewKey: true },
     );

@@ -35,8 +35,8 @@ function formatDate(iso: string): string {
 }
 
 function payloadSummary(payload: Record<string, unknown>): string {
-  const name = typeof payload.name === "string" ? payload.name : "—";
-  const email = typeof payload.email === "string" ? payload.email : "—";
+  const name = typeof payload.name === "string" ? payload.name : "n/a";
+  const email = typeof payload.email === "string" ? payload.email : "n/a";
   return `${name} · ${email}`;
 }
 
@@ -160,7 +160,7 @@ export default async function AdminFormsPage() {
                     </details>
                   </td>
                   <td className="px-3 py-3 text-muted">
-                    {row.notified_at ? formatDate(row.notified_at) : "—"}
+                    {row.notified_at ? formatDate(row.notified_at) : "n/a"}
                   </td>
                 </tr>
               ))}

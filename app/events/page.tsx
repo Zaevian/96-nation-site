@@ -51,7 +51,7 @@ export default async function EventsPage() {
       {events.length === 0 ? (
         <EmptyState
           title="No published events yet"
-          description="New shows land here once they go live in the CMS. Check back soon, or get in touch if you’re looking for a date."
+          description="New shows land here when we announce them. Check back soon, or get in touch if you're looking for a date."
           actionHref="/contact"
           actionLabel="Contact us"
         />
@@ -77,7 +77,7 @@ export default async function EventsPage() {
                 description={
                   past.length > 0 || cancelled.length > 0
                     ? "Past and cancelled listings are below if available. Follow us or check back for the next show."
-                    : "Check back soon — new dates will appear here when published."
+                    : "Check back soon. New dates show up here when we publish them."
                 }
                 actionHref="/"
                 actionLabel="Back home"

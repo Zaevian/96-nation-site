@@ -31,7 +31,7 @@ export default function GalleriesPage() {
       {galleries.length === 0 ? (
         <EmptyState
           title="Galleries coming soon"
-          description="Photo sets will appear here once published in the CMS. In the meantime, browse events or watch promo videos."
+          description="We're loading up photo sets from recent nights. In the meantime, browse events or check videos."
           actionHref="/events"
           actionLabel="Browse events"
         />

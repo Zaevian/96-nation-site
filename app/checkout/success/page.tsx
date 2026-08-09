@@ -63,7 +63,7 @@ export default async function CheckoutSuccessPage({
             </h1>
             {view.processing ? (
               <p className="mt-4 text-muted">
-                Your payment went through. Finalizing your tickets — this page
+                Your payment went through. Finalizing your tickets. This page
                 may update shortly. A confirmation email is on its way.
               </p>
             ) : (

@@ -28,7 +28,7 @@ type PageProps = {
 };
 
 function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
+  if (!iso) return "n/a";
   try {
     return new Intl.DateTimeFormat("en-US", {
       dateStyle: "medium",
@@ -237,13 +237,13 @@ export default async function AdminOrderDetailPage({
             <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
               <dt className="text-muted">Checkout session</dt>
               <dd className="font-mono text-xs text-fg break-all">
-                {order.stripe_checkout_session_id || "—"}
+                {order.stripe_checkout_session_id || "n/a"}
               </dd>
             </div>
             <div className="flex flex-col gap-1 sm:flex-row sm:justify-between">
               <dt className="text-muted">Payment intent</dt>
               <dd className="font-mono text-xs text-fg break-all">
-                {order.stripe_payment_intent_id || "—"}
+                {order.stripe_payment_intent_id || "n/a"}
               </dd>
             </div>
           </dl>
@@ -263,7 +263,7 @@ export default async function AdminOrderDetailPage({
               </ButtonLink>
             ) : (
               <span className="text-sm text-muted">
-                No Stripe IDs — open Dashboard manually if needed.
+                No Stripe IDs. Open Dashboard manually if needed.
               </span>
             )}
           </div>

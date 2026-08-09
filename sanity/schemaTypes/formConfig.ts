@@ -40,7 +40,7 @@ export const formConfig = defineType({
       name: "successTitle",
       title: "Success title",
       type: "string",
-      initialValue: "Thanks — we got it.",
+      initialValue: "Thanks, we got it.",
     }),
     defineField({
       name: "successMessage",

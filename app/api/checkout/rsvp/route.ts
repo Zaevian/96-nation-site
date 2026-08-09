@@ -96,7 +96,7 @@ export async function POST(request: Request) {
   if (unitPrice > 0) {
     return jsonError(
       400,
-      "This ticket is paid — use POST /api/checkout/session",
+      "This ticket is paid. Use POST /api/checkout/session",
       "PAID_EVENT_USE_SESSION",
     );
   }
@@ -177,7 +177,7 @@ export async function POST(request: Request) {
     if (isInventoryMissing(err)) {
       return jsonError(
         503,
-        "Inventory not synced for this ticket — try again later",
+        "Inventory not synced for this ticket. Try again later.",
         "INVENTORY_MISSING",
       );
     }

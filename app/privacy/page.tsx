@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: page?.title || "Privacy Policy",
     description:
       page?.seo?.metaDescription ||
-      "Privacy policy for 96 Nation ticketing and community services — what we collect, how we use Stripe, retention, and your rights.",
+      "Privacy policy for 96 Nation ticketing and community services: what we collect, how we use Stripe, retention, and your rights.",
     path: "/privacy",
     seo: page?.seo,
     settings,

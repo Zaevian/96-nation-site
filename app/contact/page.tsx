@@ -4,7 +4,8 @@ import { PublicForm, contactFields } from "@/components/forms/PublicForm";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Contact 96 Nation — questions, press, and general inquiries.",
+  description:
+    "Contact 96 Nation in Tallahassee for questions, booking, and general inquiries.",
 };
 
 export default function ContactPage() {

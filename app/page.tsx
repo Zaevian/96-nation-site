@@ -17,13 +17,16 @@ import type { EventListItem } from "@/lib/sanity/types";
 import { sanitizeHrefOrFallback } from "@/lib/url";
 
 const FALLBACK_HERO = {
-  title: "96 Nation — tickets, talent, and Genesis",
+  title: "96 Nation",
   subtitle:
-    "Mobile-first ticketing hub for local music. Browse events, grab tickets, explore galleries and videos, or connect through Genesis.",
+    "Ticket hub for live music, run by 96 Nation, right here in Tallahassee.",
   ctaLabel: "View events",
   ctaHref: "/events",
-  kicker: "Tallahassee · All-ages shows",
+  kicker: "Tallahassee live music",
 };
+
+const FALLBACK_ABOUT =
+  "We're a Tallahassee live events crew. We put on all-ages shows, sell tickets for the night, and use Genesis to help local artists with creative and media work. If you're looking for the next show in town, start here.";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
@@ -52,7 +55,7 @@ function FeaturedEvents({ events }: { events: EventListItem[] }) {
         <EmptyState
           className="mt-4"
           title="Nothing on the calendar yet"
-          description="Published shows will appear here and on the events page. Check back soon."
+          description="New shows will show up here as soon as we announce them. Check back soon."
           actionHref="/events"
           actionLabel="View events"
         />
@@ -106,7 +109,7 @@ export default async function HomePage() {
     ? urlForImage(settings.homeHeroImage)?.width(1400).height(800).url()
     : null;
   const aboutTitle =
-    settings?.aboutTitle?.trim() || "About 96 Nation";
+    settings?.aboutTitle?.trim() || "Who we are";
   const hasAboutBody = Boolean(
     settings?.aboutBody && settings.aboutBody.length > 0,
   );
@@ -161,11 +164,7 @@ export default async function HomePage() {
             <PortableText value={settings!.aboutBody} />
           </div>
         ) : (
-          <p className="mt-4 max-w-prose text-muted">
-            96 Nation brings all-ages shows and local talent together in the
-            Tallahassee area. Full about copy is managed in Site Settings when
-            Sanity is connected.
-          </p>
+          <p className="mt-4 max-w-prose text-muted">{FALLBACK_ABOUT}</p>
         )}
         <p className="mt-4">
           <Link

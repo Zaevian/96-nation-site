@@ -318,7 +318,7 @@ export function CheckoutForm({
             aria-describedby="checkout-phone-hint"
           />
           <p id="checkout-phone-hint" className="mt-1 text-xs text-muted">
-            US numbers OK — we convert to international format (E.164).
+            US numbers are fine. We convert them to international format.
           </p>
         </div>
 

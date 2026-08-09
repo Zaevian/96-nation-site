@@ -28,7 +28,7 @@ export async function generateMetadata({
   ]);
 
   return buildPageMetadata({
-    title: event ? `Checkout — ${event.title}` : "Checkout",
+    title: event ? `Checkout: ${event.title}` : "Checkout",
     description: event
       ? `Get tickets for ${event.title}`
       : "Checkout",

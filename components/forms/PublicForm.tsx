@@ -285,7 +285,7 @@ export function PublicForm({
         >
           {status.kind === "success" ? (
             <span className="text-accent">
-              Thanks — we received your message.
+              Thanks, we received your message.
             </span>
           ) : null}
           {status.kind === "error" ? (

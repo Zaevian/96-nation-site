@@ -96,33 +96,33 @@ export function PrivacyPolicyContent() {
         </p>
         <ul className="mt-2 list-disc space-y-2 pl-5">
           <li>
-            <strong className="text-fg">Stripe</strong> — payment processor /
+            <strong className="text-fg">Stripe</strong>: payment processor /
             sub-processor for paid Checkout. Stripe may receive your email and
             name as part of checkout. Card data is handled under Stripe’s
             privacy and PCI practices (SAQ A for our integration).
           </li>
           <li>
-            <strong className="text-fg">Supabase</strong> — database hosting for
+            <strong className="text-fg">Supabase</strong>: database hosting for
             orders, inventory, and form submissions
           </li>
           <li>
-            <strong className="text-fg">Resend</strong> — transactional email
+            <strong className="text-fg">Resend</strong>: transactional email
             delivery
           </li>
           <li>
-            <strong className="text-fg">Vercel</strong> — application hosting and
+            <strong className="text-fg">Vercel</strong>: application hosting and
             logs
           </li>
           <li>
-            <strong className="text-fg">Sentry</strong> — error monitoring
+            <strong className="text-fg">Sentry</strong>: error monitoring
             (configured to limit PII in breadcrumbs where possible)
           </li>
           <li>
-            <strong className="text-fg">Sanity</strong> — content management
+            <strong className="text-fg">Sanity</strong>: content management
             (public marketing content; not your order PII)
           </li>
           <li>
-            <strong className="text-fg">Upstash</strong> — rate limiting
+            <strong className="text-fg">Upstash</strong>: rate limiting
             infrastructure
           </li>
         </ul>
