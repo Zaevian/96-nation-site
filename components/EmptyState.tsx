@@ -28,8 +28,12 @@ export function EmptyState({
       className={`mt-10 rounded-xl border border-border bg-surface px-6 py-10 text-center sm:px-10 ${className}`}
       role="status"
     >
-      <h2 className="text-lg font-semibold tracking-tight text-fg">{title}</h2>
-      <p className="mx-auto mt-3 max-w-prose text-sm text-muted">{description}</p>
+      <h2 className="font-display text-lg font-bold uppercase tracking-tight text-fg">
+        {title}
+      </h2>
+      <p className="mx-auto mt-3 max-w-prose text-sm leading-relaxed text-muted">
+        {description}
+      </p>
       {children ? <div className="mt-4">{children}</div> : null}
       {actionHref && actionLabel ? (
         <div className="mt-6 flex justify-center">

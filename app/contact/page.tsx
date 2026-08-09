@@ -12,16 +12,21 @@ export default function ContactPage() {
   return (
     <Container className="py-12">
       <header className="max-w-prose">
-        <h1 className="text-3xl font-bold tracking-tight text-fg">Contact</h1>
-        <p className="mt-4 text-muted">
-          Prefer email? Reach us at{" "}
+        <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          Reach out
+        </p>
+        <h1 className="mt-3 font-display text-3xl font-extrabold uppercase tracking-tight text-fg sm:text-4xl">
+          Contact
+        </h1>
+        <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
+          Prefer email? Hit{" "}
           <a
             href="mailto:hello@96nation.net"
             className="text-accent underline underline-offset-2"
           >
             hello@96nation.net
           </a>
-          . Or send a message below.
+          . Or drop a message below and we&apos;ll get back to you.
         </p>
       </header>
 

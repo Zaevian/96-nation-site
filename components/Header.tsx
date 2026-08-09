@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -15,19 +16,16 @@ export function Header() {
   const closeMenu = useCallback((restoreFocus = false) => {
     setOpen(false);
     if (restoreFocus) {
-      // Defer until panel is hidden so focus is not left on a display:none node
       queueMicrotask(() => {
         menuButtonRef.current?.focus();
       });
     }
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Escape closes menu and restores focus to the toggle (disclosure pattern)
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -41,18 +39,25 @@ export function Header() {
   }, [open, closeMenu]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/95 backdrop-blur-sm">
-      <Container className="flex min-h-14 items-center justify-between gap-4 py-2">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-bg/90 backdrop-blur-md">
+      <Container className="flex min-h-16 items-center justify-between gap-4 py-2">
         <Link
           href="/"
-          className="text-lg font-bold tracking-tight text-fg no-underline hover:text-accent"
+          className="inline-flex items-center no-underline focus-visible:outline-offset-4"
+          aria-label="96 Nation home"
         >
-          96 Nation
+          <Image
+            src="/brand/96-nation-logo-white.png"
+            alt="96 Nation"
+            width={40}
+            height={50}
+            className="h-11 w-auto object-contain sm:h-12"
+            priority
+          />
         </Link>
 
-        {/* Desktop nav */}
         <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex items-center gap-1">
+          <ul className="flex items-center gap-0.5">
             {primaryNav.map((item) => {
               const active =
                 item.href === "/"
@@ -62,9 +67,9 @@ export function Header() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors min-h-11 inline-flex items-center ${
+                    className={`font-display inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-semibold uppercase tracking-wide no-underline transition-colors ${
                       active
-                        ? "text-accent underline underline-offset-4"
+                        ? "text-accent"
                         : "text-muted hover:text-fg"
                     }`}
                     aria-current={active ? "page" : undefined}
@@ -77,7 +82,6 @@ export function Header() {
           </ul>
         </nav>
 
-        {/* Mobile menu toggle */}
         <button
           ref={menuButtonRef}
           type="button"
@@ -87,15 +91,10 @@ export function Header() {
           onClick={() => setOpen((v) => !v)}
         >
           <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
-          {open ? (
-            <CloseIcon aria-hidden />
-          ) : (
-            <MenuIcon aria-hidden />
-          )}
+          {open ? <CloseIcon aria-hidden /> : <MenuIcon aria-hidden />}
         </button>
       </Container>
 
-      {/* Mobile panel — simple disclosure (no modal focus trap / body scroll lock) */}
       <div
         id={menuId}
         className={`border-t border-border bg-surface md:hidden ${
@@ -114,7 +113,7 @@ export function Header() {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`block rounded-md px-3 py-3 text-base font-medium no-underline min-h-11 ${
+                      className={`font-display block min-h-11 rounded-md px-3 py-3 text-base font-semibold uppercase tracking-wide no-underline ${
                         active
                           ? "bg-bg text-accent"
                           : "text-fg hover:bg-bg"

@@ -47,7 +47,7 @@ export default function StudioPage() {
             server. Create a free project at{" "}
             <a
               href="https://www.sanity.io/manage"
-              style={{ color: "#f97316" }}
+              style={{ color: "#dc4405" }}
             >
               sanity.io/manage
             </a>

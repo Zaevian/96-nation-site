@@ -23,9 +23,14 @@ export default function VideosPage() {
   return (
     <Container className="py-12">
       <header className="max-w-2xl">
-        <h1 className="text-3xl font-bold tracking-tight text-fg">Videos</h1>
-        <p className="mt-4 max-w-prose text-muted">
-          Promo and show clips (YouTube and Vimeo).
+        <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          Watch
+        </p>
+        <h1 className="mt-3 font-display text-3xl font-extrabold uppercase tracking-tight text-fg sm:text-4xl">
+          Videos
+        </h1>
+        <p className="mt-4 max-w-prose text-base leading-relaxed text-muted sm:text-lg">
+          Promo and show clips. YouTube and Vimeo.
         </p>
       </header>
 

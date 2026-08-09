@@ -14,31 +14,34 @@ export const metadata: Metadata = {
 
 export default function GenesisPage() {
   return (
-    <Container className="py-12">
-      <header className="max-w-prose">
-        <h1 className="text-3xl font-bold tracking-tight text-fg">
-          96 Nation: Genesis
+    <Container className="py-12 sm:py-16">
+      <header className="max-w-2xl">
+        <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          96 Nation
+        </p>
+        <h1 className="mt-3 font-display text-3xl font-extrabold uppercase tracking-tight text-fg sm:text-4xl">
+          Genesis
         </h1>
-        <p className="mt-4 text-muted">
+        <p className="mt-5 text-base leading-relaxed text-muted sm:text-lg">
           Genesis is here to help local Tallahassee talent take the next step.
-          Sign up for community updates, or ask about production, booking, and
-          media work.
+          Creative work, media, production, booking questions. Get on the list
+          or tell us what you need.
         </p>
       </header>
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-2">
+      <div className="mt-12 grid gap-8 lg:grid-cols-2">
         <section
           aria-labelledby="signup-heading"
-          className="rounded-lg border border-border bg-surface p-6"
+          className="rounded-xl border border-border bg-surface p-6 sm:p-8"
         >
           <h2
             id="signup-heading"
-            className="text-xl font-semibold tracking-tight text-fg"
+            className="font-display text-xl font-bold uppercase tracking-tight text-fg"
           >
             Community signup
           </h2>
-          <p className="mt-2 text-sm text-muted">
-            Get on the list for shows, community nights, and Genesis news.
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Shows, community nights, Genesis news. Stay in the loop.
           </p>
           <div className="mt-6">
             <PublicForm
@@ -52,15 +55,15 @@ export default function GenesisPage() {
 
         <section
           aria-labelledby="service-heading"
-          className="rounded-lg border border-border bg-surface p-6"
+          className="rounded-xl border border-border bg-surface p-6 sm:p-8"
         >
           <h2
             id="service-heading"
-            className="text-xl font-semibold tracking-tight text-fg"
+            className="font-display text-xl font-bold uppercase tracking-tight text-fg"
           >
             Service inquiry
           </h2>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm leading-relaxed text-muted">
             Tell us what you need. We&apos;ll follow up by email or phone.
           </p>
           <div className="mt-6">

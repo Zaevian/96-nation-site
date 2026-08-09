@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 /**
- * Root layout error boundary — must define its own html/body.
+ * Root layout error boundary. Must define its own html/body.
  * Minimal styles so it still works if globals fail to load.
  */
 export default function GlobalError({
@@ -27,8 +27,8 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0a0a0a",
-          color: "#f5f5f5",
+          background: "#231f20",
+          color: "#ffffff",
           fontFamily: "system-ui, sans-serif",
           padding: "1.5rem",
         }}
@@ -37,7 +37,7 @@ export default function GlobalError({
           <h1 style={{ fontSize: "1.5rem", margin: "0 0 0.75rem" }}>
             Something went wrong
           </h1>
-          <p style={{ color: "#a3a3a3", margin: "0 0 1.5rem", lineHeight: 1.5 }}>
+          <p style={{ color: "#b8b8ba", margin: "0 0 1.5rem", lineHeight: 1.5 }}>
             A critical error occurred. Please try again or return home.
           </p>
           {error.digest ? (
@@ -45,7 +45,7 @@ export default function GlobalError({
               style={{
                 fontFamily: "ui-monospace, monospace",
                 fontSize: "0.75rem",
-                color: "#a3a3a3",
+                color: "#b8b8ba",
                 marginBottom: "1.5rem",
               }}
             >
@@ -68,8 +68,8 @@ export default function GlobalError({
                 padding: "0.5rem 1rem",
                 borderRadius: "0.375rem",
                 border: "none",
-                background: "#f97316",
-                color: "#0a0a0a",
+                background: "#dc4405",
+                color: "#ffffff",
                 fontWeight: 600,
                 cursor: "pointer",
               }}
@@ -82,9 +82,9 @@ export default function GlobalError({
                 minHeight: "2.75rem",
                 padding: "0.5rem 1rem",
                 borderRadius: "0.375rem",
-                border: "1px solid #262626",
-                background: "#141414",
-                color: "#f5f5f5",
+                border: "1px solid #3a3839",
+                background: "#2c292a",
+                color: "#ffffff",
                 fontWeight: 600,
                 textDecoration: "none",
                 display: "inline-flex",

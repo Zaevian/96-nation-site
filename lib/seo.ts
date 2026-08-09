@@ -5,7 +5,7 @@ import type { SanityImage, SeoFields, SiteSettings } from "@/lib/sanity/types";
 
 const DEFAULT_SITE_TITLE = "96 Nation";
 const DEFAULT_DESCRIPTION =
-  "Ticket hub for live music, run by 96 Nation, right here in Tallahassee.";
+  "Ticket hub for live music, run by 96 Nation, right here in Tallahassee. Experiences, shows, and Genesis.";
 
 /** Absolute site origin (no trailing slash). */
 export function getSiteUrl(): string {

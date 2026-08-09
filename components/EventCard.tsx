@@ -35,7 +35,7 @@ export function EventCard({ event, headingLevel = 2 }: EventCardProps) {
     <li>
       <Link
         href={`/events/${event.slug}`}
-        className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface no-underline transition-colors hover:border-muted"
+        className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface no-underline transition-colors hover:border-accent/60"
       >
         {imageUrl ? (
           <div className="relative aspect-[16/9] w-full bg-bg">
@@ -65,7 +65,7 @@ export function EventCard({ event, headingLevel = 2 }: EventCardProps) {
             </p>
           ) : null}
 
-          <TitleTag className="text-lg font-semibold text-fg group-hover:text-accent">
+          <TitleTag className="font-display text-lg font-bold uppercase tracking-tight text-fg group-hover:text-accent">
             {event.title}
           </TitleTag>
 

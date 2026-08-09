@@ -41,10 +41,15 @@ export default async function EventsPage() {
   return (
     <Container className="py-12">
       <header className="max-w-2xl">
-        <h1 className="text-3xl font-bold tracking-tight text-fg">Events</h1>
-        <p className="mt-4 max-w-prose text-muted">
-          Upcoming all-ages shows in the Tallahassee area. Tap an event for
-          details and tickets.
+        <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          Live
+        </p>
+        <h1 className="mt-3 font-display text-3xl font-extrabold uppercase tracking-tight text-fg sm:text-4xl">
+          Events
+        </h1>
+        <p className="mt-4 max-w-prose text-base leading-relaxed text-muted sm:text-lg">
+          Upcoming all-ages shows in Tallahassee. Tap a night for details and
+          tickets.
         </p>
       </header>
 
