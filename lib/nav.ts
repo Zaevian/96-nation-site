@@ -8,8 +8,6 @@ export const primaryNav: NavItem[] = [
   { href: "/", label: "Home" },
   { href: "/events", label: "Events" },
   { href: "/genesis", label: "Genesis" },
-  { href: "/galleries", label: "Galleries" },
-  { href: "/videos", label: "Videos" },
   { href: "/contact", label: "Contact" },
 ];
 

@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { getSiteUrl } from "@/lib/site-url";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -15,15 +17,6 @@ function normalizeSupabaseUrl(raw: string): string {
   u = u.replace(/\/rest\/v1$/i, "");
   u = u.replace(/\/auth\/v1$/i, "");
   return u;
-}
-
-function siteOrigin(): string {
-  const fromEnv = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim().replace(/\/+$/, "");
-  if (fromEnv.startsWith("http://") || fromEnv.startsWith("https://")) {
-    return fromEnv;
-  }
-  // Fallback production hosts (prefer vercel app for first setup)
-  return "https://96-nation-site.vercel.app";
 }
 
 /**
@@ -53,7 +46,7 @@ export async function POST(request: Request) {
   }
 
   const url = normalizeSupabaseUrl(rawUrl);
-  const origin = siteOrigin();
+  const origin = getSiteUrl();
   const redirectTo = `${origin}/auth/callback`;
 
   const supabase = createClient(url, anonKey, {
