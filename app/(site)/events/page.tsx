@@ -70,7 +70,13 @@ export default async function EventsPage() {
               Upcoming
             </h2>
             {upcoming.length > 0 ? (
-              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ul
+                className={
+                  upcoming.length === 1
+                    ? "mx-auto grid max-w-md gap-4 sm:max-w-lg"
+                    : "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                }
+              >
                 {upcoming.map((event) => (
                   <EventCard key={event._id} event={event} />
                 ))}
@@ -101,7 +107,13 @@ export default async function EventsPage() {
               >
                 Past
               </h2>
-              <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ul
+                className={
+                  past.length === 1
+                    ? "mx-auto mt-4 grid max-w-md gap-4 sm:max-w-lg"
+                    : "mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                }
+              >
                 {past.map((event) => (
                   <EventCard
                     key={event._id}
@@ -124,7 +136,13 @@ export default async function EventsPage() {
               >
                 Cancelled
               </h2>
-              <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ul
+                className={
+                  cancelled.length === 1
+                    ? "mx-auto mt-4 grid max-w-md gap-4 sm:max-w-lg"
+                    : "mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                }
+              >
                 {cancelled.map((event) => (
                   <EventCard
                     key={event._id}
