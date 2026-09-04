@@ -28,8 +28,13 @@ const mono = JetBrains_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSiteSettings();
-  return buildRootMetadata(settings);
+  try {
+    const settings = await getSiteSettings();
+    return buildRootMetadata(settings);
+  } catch (err) {
+    console.error("[root layout] getSiteSettings failed:", err);
+    return buildRootMetadata(null);
+  }
 }
 
 export default function RootLayout({
