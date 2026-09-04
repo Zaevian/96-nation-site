@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Jost, Source_Serif_4, JetBrains_Mono } from "next/font/google";
-import { SiteShell } from "@/components/SiteShell";
 import { getSiteSettings } from "@/lib/sanity/queries";
 import { buildRootMetadata } from "@/lib/seo";
 import "./globals.css";
@@ -43,7 +42,7 @@ export default function RootLayout({
       <body
         className={`${display.variable} ${body.variable} ${mono.variable} antialiased`}
       >
-        <SiteShell>{children}</SiteShell>
+        {children}
       </body>
     </html>
   );

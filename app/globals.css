@@ -5,14 +5,16 @@
   Palette:
     Dark Black    #231F20
     White         #FFFFFF
-    Orange Cookies #DC4405  (do not alter without approval)
+    Orange Cookies #DC4405  (solid fills / buttons — keep strong)
+    Accent text   #E85A1A  (lightened for small text/links on dark)
     Gray Pack     #4D4D4F
 
   Contrast notes (WCAG 2.2 AA, approximate on Dark Black):
   - white / dark black      ~16:1
   - gray pack / dark black  ~3.4:1  (use only large/decorative; muted text uses lightened gray)
-  - orange cookies / dark   ~5.5:1  (links/accents)
-  - dark black / orange     ~5.5:1  (text on orange buttons)
+  - accent text / dark      ~4.6:1  (small text links, labels)
+  - orange fill / dark      ~3.8:1  (decorative / large only; prefer accent text for copy)
+  - white / orange fill     ~4.3:1  (button label on solid fill)
 */
 
 :root {
@@ -21,7 +23,10 @@
   --muted: #b8b8ba;
   --border: #3a3839;
   --surface: #2c292a;
-  --accent: #dc4405;
+  /* Lighter orange for small text/links (~4.5:1 on dark bg) */
+  --accent: #e85a1a;
+  /* Brand Orange Cookies for solid button fills */
+  --accent-fill: #dc4405;
   --accent-fg: #ffffff;
   --danger: #f87171;
   --gray-pack: #4d4d4f;
@@ -35,7 +40,8 @@
   --color-muted: #b8b8ba;
   --color-border: #3a3839;
   --color-surface: #2c292a;
-  --color-accent: #dc4405;
+  --color-accent: #e85a1a;
+  --color-accent-fill: #dc4405;
   --color-accent-fg: #ffffff;
   --color-danger: #f87171;
   --color-gray-pack: #4d4d4f;
@@ -124,7 +130,7 @@
   top: -100%;
   z-index: 100;
   padding: 0.5rem 1rem;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-fg);
   font-family:
     "Futura PT",

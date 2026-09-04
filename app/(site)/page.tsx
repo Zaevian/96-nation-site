@@ -79,7 +79,13 @@ function FeaturedEvents({ events }: { events: EventListItem[] }) {
           View all
         </Link>
       </div>
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+      <ul
+        className={
+          events.length === 1
+            ? "mx-auto mt-6 grid max-w-md gap-4 sm:max-w-lg"
+            : "mt-6 grid gap-4 sm:grid-cols-2"
+        }
+      >
         {events.map((event) => (
           <EventCard key={event._id} event={event} headingLevel={3} />
         ))}

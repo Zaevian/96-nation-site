@@ -2,31 +2,33 @@ import type { Metadata } from "next";
 
 import { urlForImage } from "@/lib/sanity/image";
 import type { SanityImage, SeoFields, SiteSettings } from "@/lib/sanity/types";
+import { getSiteUrl } from "@/lib/site-url";
 
 const DEFAULT_SITE_TITLE = "96 Nation";
 const DEFAULT_DESCRIPTION =
   "Ticket hub for live music, run by 96 Nation, right here in Tallahassee. Experiences, shows, and Genesis.";
 
-/** Absolute site origin (no trailing slash). */
-export function getSiteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return raw.replace(/\/$/, "");
-}
+export { getSiteUrl } from "@/lib/site-url";
+
+/** Static brand OG fallback when CMS has no default image. */
+const STATIC_OG_IMAGE_PATH = "/brand/96-nation-logo-white.png";
 
 function resolveOgImageUrl(
   pageImage?: SanityImage | null,
   defaultImage?: SanityImage | null,
-): string | undefined {
+): string {
   const source = pageImage || defaultImage;
-  if (!source) return undefined;
-  try {
-    return (
-      urlForImage(source)?.width(1200).height(630).fit("crop").url() ||
-      undefined
-    );
-  } catch {
-    return undefined;
+  if (source) {
+    try {
+      const fromCms =
+        urlForImage(source)?.width(1200).height(630).fit("crop").url() ||
+        undefined;
+      if (fromCms) return fromCms;
+    } catch {
+      // fall through to static brand asset
+    }
   }
+  return `${getSiteUrl()}${STATIC_OG_IMAGE_PATH}`;
 }
 
 export type BuildMetadataInput = {
@@ -85,24 +87,20 @@ export function buildPageMetadata({
       siteName: siteTitle,
       title: resolvedTitle,
       description: resolvedDescription,
-      ...(ogImageUrl
-        ? {
-            images: [
-              {
-                url: ogImageUrl,
-                width: 1200,
-                height: 630,
-                alt: resolvedTitle,
-              },
-            ],
-          }
-        : {}),
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: resolvedTitle,
+        },
+      ],
     },
     twitter: {
-      card: ogImageUrl ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
-      ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
+      images: [ogImageUrl],
     },
   };
 
@@ -130,17 +128,13 @@ export async function buildRootMetadata(
       siteName: siteTitle,
       title: siteTitle,
       description,
-      ...(ogImageUrl
-        ? {
-            images: [{ url: ogImageUrl, width: 1200, height: 630 }],
-          }
-        : {}),
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: siteTitle }],
     },
     twitter: {
-      card: ogImageUrl ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: siteTitle,
       description,
-      ...(ogImageUrl ? { images: [ogImageUrl] } : {}),
+      images: [ogImageUrl],
     },
   };
 }
