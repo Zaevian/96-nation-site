@@ -160,18 +160,14 @@ export default async function HomePage() {
                 />
               </div>
             ) : (
-              <div className="relative flex aspect-square w-full max-w-sm items-center justify-center rounded-2xl border border-border bg-surface/80 p-10 shadow-[0_0_80px_-10px_color-mix(in_srgb,var(--accent)_45%,transparent)]">
+              <div className="relative flex w-full max-w-sm items-center justify-center">
                 <Image
                   src="/brand/96-nation-logo-white.png"
                   alt="96 Nation"
-                  width={280}
-                  height={350}
-                  className="h-auto w-full max-w-[220px] object-contain sm:max-w-[260px]"
+                  width={320}
+                  height={320}
+                  className="h-auto w-full max-w-[240px] object-contain drop-shadow-[0_0_40px_color-mix(in_srgb,var(--accent)_35%,transparent)] sm:max-w-[280px]"
                   priority
-                />
-                <div
-                  className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5"
-                  aria-hidden
                 />
               </div>
             )}
