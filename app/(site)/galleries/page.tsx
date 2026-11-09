@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { EmptyState } from "@/components/EmptyState";
+import { FollowCallout } from "@/components/FollowCallout";
 import { Container } from "@/components/ui/Container";
 import { getSiteSettings } from "@/lib/sanity/queries";
 import { buildPageMetadata } from "@/lib/seo";
@@ -34,11 +34,12 @@ export default function GalleriesPage() {
       </header>
 
       {galleries.length === 0 ? (
-        <EmptyState
+        <FollowCallout
+          className="mt-10"
           title="Galleries coming soon"
-          description="We're loading up photo sets from recent nights. In the meantime, browse events or check videos."
-          actionHref="/events"
-          actionLabel="Browse events"
+          description="Photo sets from recent nights are on the way. Until then, the freshest flicks live on our Instagram."
+          secondaryHref="/events"
+          secondaryLabel="Browse events"
         />
       ) : null}
     </Container>

@@ -2,15 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-import { EmptyState } from "@/components/EmptyState";
 import { EventCard } from "@/components/EventCard";
+import { FollowCallout } from "@/components/FollowCallout";
+import { InstagramIcon } from "@/components/InstagramIcon";
 import { PortableText } from "@/components/PortableText";
 import { ButtonLink } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { isEventUpcoming } from "@/lib/events";
 import {
+  getEvents,
   getFeaturedEvents,
   getSiteSettings,
 } from "@/lib/sanity/queries";
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/social";
 import { urlForImage } from "@/lib/sanity/image";
 import { buildPageMetadata } from "@/lib/seo";
 import type { EventListItem } from "@/lib/sanity/types";
@@ -42,7 +46,13 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-function FeaturedEvents({ events }: { events: EventListItem[] }) {
+function FeaturedEvents({
+  events,
+  lastShow,
+}: {
+  events: EventListItem[];
+  lastShow: EventListItem | null;
+}) {
   if (events.length === 0) {
     return (
       <section aria-labelledby="featured-heading" className="mt-16 sm:mt-20">
@@ -52,13 +62,30 @@ function FeaturedEvents({ events }: { events: EventListItem[] }) {
         >
           Upcoming events
         </h2>
-        <EmptyState
-          className="mt-6"
-          title="Calendar's quiet for a second"
-          description="When the next show drops, it'll land here first. Follow along or hit us up if you're hunting a date."
-          actionHref="/events"
-          actionLabel="View events"
-        />
+        <div
+          className={
+            lastShow
+              ? "mt-6 grid items-stretch gap-6 md:grid-cols-2"
+              : "mt-6"
+          }
+        >
+          <FollowCallout
+            title="Calendar's quiet for a second"
+            description="The next show drops on Instagram first, then lands here with tickets. Follow so you're on the list when it does."
+            secondaryHref="/events"
+            secondaryLabel="All events"
+          />
+          {lastShow ? (
+            <div>
+              <p className="mb-3 font-display text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+                Last time out
+              </p>
+              <ul>
+                <EventCard event={lastShow} headingLevel={3} past />
+              </ul>
+            </div>
+          ) : null}
+        </div>
       </section>
     );
   }
@@ -95,10 +122,20 @@ function FeaturedEvents({ events }: { events: EventListItem[] }) {
 }
 
 export default async function HomePage() {
-  const [settings, featured] = await Promise.all([
+  const [settings, featured, allEvents] = await Promise.all([
     getSiteSettings(),
     getFeaturedEvents(),
+    getEvents(),
   ]);
+  const now = new Date();
+  const lastShow =
+    allEvents
+      .filter((e) => e.status !== "cancelled" && !isEventUpcoming(e, now))
+      .sort((a, b) => {
+        const ta = a.startAt ? new Date(a.startAt).getTime() : 0;
+        const tb = b.startAt ? new Date(b.startAt).getTime() : 0;
+        return tb - ta;
+      })[0] ?? null;
 
   const title =
     settings?.homeHeroTitle?.trim() || FALLBACK_HERO.title;
@@ -133,13 +170,18 @@ export default async function HomePage() {
             <p className="max-w-xl text-lg leading-relaxed text-muted sm:text-xl">
               {subtitle}
             </p>
-            <div className="flex flex-wrap gap-3 pt-1">
+            <div className="grid gap-3 pt-1 sm:flex sm:flex-wrap">
               <ButtonLink href={ctaHref}>{ctaLabel}</ButtonLink>
-              <ButtonLink href="/genesis" variant="secondary">
-                Genesis
+              <ButtonLink href={INSTAGRAM_URL} variant="secondary">
+                <InstagramIcon className="h-4 w-4" />
+                Follow {INSTAGRAM_HANDLE}
               </ButtonLink>
-              <ButtonLink href="/contact" variant="ghost">
-                Contact
+              <ButtonLink
+                href="/genesis"
+                variant="ghost"
+                className="justify-self-start sm:justify-self-auto"
+              >
+                Genesis
               </ButtonLink>
             </div>
             <p className="font-display text-sm font-semibold uppercase tracking-widest text-muted">
@@ -147,7 +189,11 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="relative mx-auto flex w-full max-w-md items-center justify-center lg:max-w-none">
+          <div
+            className={`relative mx-auto w-full max-w-md items-center justify-center lg:max-w-none ${
+              heroImageUrl ? "flex" : "hidden lg:flex"
+            }`}
+          >
             {heroImageUrl ? (
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-surface shadow-[0_0_60px_-12px_color-mix(in_srgb,var(--accent)_50%,transparent)]">
                 <Image
@@ -174,7 +220,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <FeaturedEvents events={featured} />
+        <FeaturedEvents events={featured} lastShow={lastShow} />
 
         <section
           aria-labelledby="about-heading"
