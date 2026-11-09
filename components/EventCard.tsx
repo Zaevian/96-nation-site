@@ -27,7 +27,7 @@ export function EventCard({
   const tz = event.timezone || "America/New_York";
   const dateLabel = formatEventDate(event.startAt, tz);
   const imageUrl = event.heroImage
-    ? urlForImage(event.heroImage)?.width(640).height(360).url()
+    ? urlForImage(event.heroImage)?.width(800).height(450).crop("top").url()
     : null;
   const soldOut = isSoldOutFromCapacity(event.ticketTypes);
   const cancelled = event.status === "cancelled";

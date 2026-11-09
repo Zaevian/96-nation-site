@@ -65,7 +65,7 @@ function FeaturedEvents({
         <div
           className={
             lastShow
-              ? "mt-6 grid items-stretch gap-6 md:grid-cols-[1.15fr_0.85fr]"
+              ? "mt-6 grid items-stretch gap-6 md:grid-cols-2"
               : "mt-6"
           }
         >
@@ -170,14 +170,18 @@ export default async function HomePage() {
             <p className="max-w-xl text-lg leading-relaxed text-muted sm:text-xl">
               {subtitle}
             </p>
-            <div className="flex flex-wrap gap-3 pt-1">
+            <div className="grid gap-3 pt-1 sm:flex sm:flex-wrap">
               <ButtonLink href={ctaHref}>{ctaLabel}</ButtonLink>
               <ButtonLink href={INSTAGRAM_URL} variant="secondary">
                 <InstagramIcon className="h-4 w-4" />
                 Follow {INSTAGRAM_HANDLE}
               </ButtonLink>
-              <ButtonLink href="/genesis" variant="ghost">
-                Genesis
+              <ButtonLink
+                href="/genesis"
+                variant="ghost"
+                className="justify-self-start sm:justify-self-auto"
+              >
+                Genesis: for local talent
               </ButtonLink>
             </div>
             <p className="font-display text-sm font-semibold uppercase tracking-widest text-muted">
