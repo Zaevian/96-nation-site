@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { footerNav } from "@/lib/nav";
 import { Container } from "@/components/ui/Container";
+import { InstagramIcon } from "@/components/InstagramIcon";
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/social";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -33,12 +35,13 @@ export function Footer() {
             </a>
             <span className="mx-2 text-border">·</span>
             <a
-              href="https://www.instagram.com/96nationfl/"
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted underline underline-offset-2 hover:text-fg"
+              className="inline-flex items-center gap-1.5 text-fg underline underline-offset-2 hover:text-accent"
             >
-              @96nationfl
+              <InstagramIcon className="h-4 w-4" />
+              {INSTAGRAM_HANDLE}
             </a>
           </p>
         </div>

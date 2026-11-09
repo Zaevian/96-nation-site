@@ -50,8 +50,16 @@ export function ButtonLink({
   className = "",
   children,
 }: ButtonLinkProps) {
+  const cls = `${base} ${variants[variant]} ${className}`;
+  if (/^https?:\/\//.test(href)) {
+    return (
+      <a href={href} className={cls} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  }
   return (
-    <Link href={href} className={`${base} ${variants[variant]} ${className}`}>
+    <Link href={href} className={cls}>
       {children}
     </Link>
   );

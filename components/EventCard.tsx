@@ -15,9 +15,15 @@ type EventCardProps = {
   event: EventListItem;
   /** Heading level for card title (default 2 on list; use 3 under a section h2). */
   headingLevel?: 2 | 3;
+  /** Past show: swap the price line for a "Past show" label. */
+  past?: boolean;
 };
 
-export function EventCard({ event, headingLevel = 2 }: EventCardProps) {
+export function EventCard({
+  event,
+  headingLevel = 2,
+  past = false,
+}: EventCardProps) {
   const tz = event.timezone || "America/New_York";
   const dateLabel = formatEventDate(event.startAt, tz);
   const imageUrl = event.heroImage
@@ -77,7 +83,13 @@ export function EventCard({ event, headingLevel = 2 }: EventCardProps) {
             <p className="line-clamp-2 text-sm text-muted">{event.summary}</p>
           ) : null}
 
-          {price !== null && !cancelled ? (
+          {past && !cancelled ? (
+            <p className="mt-auto pt-2 font-display text-xs font-semibold uppercase tracking-widest text-muted">
+              Past show
+            </p>
+          ) : null}
+
+          {!past && price !== null && !cancelled ? (
             <p className="mt-auto pt-2 text-sm font-medium text-fg">
               {soldOut
                 ? "Sold out"

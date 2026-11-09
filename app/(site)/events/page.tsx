@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { EmptyState } from "@/components/EmptyState";
 import { EventCard } from "@/components/EventCard";
+import { FollowCallout } from "@/components/FollowCallout";
 import { Container } from "@/components/ui/Container";
 import { isEventUpcoming } from "@/lib/events";
 import { getEvents, getSiteSettings } from "@/lib/sanity/queries";
@@ -82,16 +83,11 @@ export default async function EventsPage() {
                 ))}
               </ul>
             ) : (
-              <EmptyState
-                className="mt-0"
-                title="No upcoming events right now"
-                description={
-                  past.length > 0 || cancelled.length > 0
-                    ? "Past and cancelled listings are below if available. Follow us or check back for the next show."
-                    : "Check back soon. New dates show up here when we publish them."
-                }
-                actionHref="/"
-                actionLabel="Back home"
+              <FollowCallout
+                title="No dates on the board right now"
+                description="The next show gets announced on Instagram first, then lands here with tickets. Follow so you catch the drop."
+                secondaryHref="/contact"
+                secondaryLabel="Book or collab"
               />
             )}
           </section>
@@ -103,9 +99,9 @@ export default async function EventsPage() {
             >
               <h2
                 id="past-events-heading"
-                className="text-lg font-semibold tracking-tight text-fg"
+                className="font-display text-2xl font-bold uppercase tracking-tight text-fg"
               >
-                Past
+                Past nights
               </h2>
               <ul
                 className={
@@ -119,6 +115,7 @@ export default async function EventsPage() {
                     key={event._id}
                     event={event}
                     headingLevel={3}
+                    past
                   />
                 ))}
               </ul>

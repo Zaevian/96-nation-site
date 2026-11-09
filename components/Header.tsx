@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { primaryNav } from "@/lib/nav";
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL } from "@/lib/social";
+import { InstagramIcon } from "@/components/InstagramIcon";
 import { Container } from "@/components/ui/Container";
 
 export function Header() {
@@ -79,6 +81,17 @@ export function Header() {
                 </li>
               );
             })}
+            <li className="ml-2">
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-muted transition-colors hover:text-accent"
+                aria-label={`96 Nation on Instagram (${INSTAGRAM_HANDLE})`}
+              >
+                <InstagramIcon />
+              </a>
+            </li>
           </ul>
         </nav>
 
@@ -125,6 +138,17 @@ export function Header() {
                   </li>
                 );
               })}
+              <li>
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-display flex min-h-11 items-center gap-2 rounded-md px-3 py-3 text-base font-semibold uppercase tracking-wide text-accent no-underline hover:bg-bg"
+                >
+                  <InstagramIcon />
+                  Follow {INSTAGRAM_HANDLE}
+                </a>
+              </li>
             </ul>
           </nav>
         </Container>
