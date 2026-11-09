@@ -181,7 +181,7 @@ export default async function HomePage() {
                 variant="ghost"
                 className="justify-self-start sm:justify-self-auto"
               >
-                Genesis: for local talent
+                Genesis
               </ButtonLink>
             </div>
             <p className="font-display text-sm font-semibold uppercase tracking-widest text-muted">
